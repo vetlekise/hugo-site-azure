@@ -31,7 +31,7 @@ resource "azurerm_static_web_app" "hugo" {
   resource_group_name = azurerm_resource_group.hugo.name
   location            = azurerm_resource_group.hugo.location
 
-  sku_tier = "Free" 
+  sku_tier = "Free"
   sku_size = "Free"
 }
 
@@ -50,7 +50,7 @@ output "website_url" {
 }
 
 output "custom_domain_validation_token" {
-  description = "The TXT token needed to validate the custom domain 'vetle.dev'."
-  # This prevents an error when the custom domain is not created.
-  value = var.add_custom_domain ? azurerm_static_web_app_custom_domain.apex[0].validation_token : "Custom domain not created. Set add_custom_domain to true to get a token."
+  description = "The TXT token needed to validate the custom domain."
+  sensitive   = true
+  value       = var.add_custom_domain ? azurerm_static_web_app_custom_domain.apex[0].validation_token : "Custom domain not created. Set add_custom_domain to true to get a token."
 }

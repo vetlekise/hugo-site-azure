@@ -17,7 +17,7 @@ variable "add_custom_domain" {
 }
 
 variable "custom_domain" {
-    description = "The custom domain to add to the Static Web App. Only used if add_custom_domain is true."
-    type        = string
-    default     = "vetle.dev"
+  description = "The custom domain to add to the Static Web App. Only used if add_custom_domain is true."
+  type        = string
+  default     = "vetle.dev"
 }
