@@ -9,3 +9,15 @@ variable "location" {
   type        = string
   default     = "West Europe"
 }
+
+variable "add_custom_domain" {
+  description = "Set to true to create the custom domain for the Static Web App."
+  type        = bool
+  default     = false
+}
+
+variable "custom_domain" {
+    description = "The custom domain to add to the Static Web App. Only used if add_custom_domain is true."
+    type        = string
+    default     = "vetle.dev"
+}

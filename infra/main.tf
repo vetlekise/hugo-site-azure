@@ -31,12 +31,26 @@ resource "azurerm_static_web_app" "hugo" {
   resource_group_name = azurerm_resource_group.hugo.name
   location            = azurerm_resource_group.hugo.location
 
-  # The SKU is "Free" or "Standard"
   sku_tier = "Free" 
   sku_size = "Free"
 }
 
+resource "azurerm_static_web_app_custom_domain" "apex" {
+  count = var.add_custom_domain ? 1 : 0
+
+  static_web_app_id = azurerm_static_web_app.hugo.id
+  domain_name       = var.custom_domain
+  validation_type   = "dns-txt-token"
+}
+
+
 # Output the default hostname of the Static Web App
 output "website_url" {
   value = "https://${azurerm_static_web_app.hugo.default_host_name}"
+}
+
+output "custom_domain_validation_token" {
+  description = "The TXT token needed to validate the custom domain 'vetle.dev'."
+  # This prevents an error when the custom domain is not created.
+  value = var.add_custom_domain ? azurerm_static_web_app_custom_domain.apex[0].validation_token : "Custom domain not created. Set add_custom_domain to true to get a token."
 }
