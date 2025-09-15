@@ -13,7 +13,7 @@ variable "location" {
 variable "add_custom_domain" {
   description = "Set to true to create the custom domain for the Static Web App."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "custom_domain" {
