@@ -36,7 +36,7 @@ resource "azurerm_static_web_app" "hugo" {
   sku_size = "Free"
 }
 
-# Output the default hostname of the Web App
+# Output the default hostname of the Static Web App
 output "website_url" {
   value = "https://${azurerm_static_web_app.hugo.default_host_name}"
 }
