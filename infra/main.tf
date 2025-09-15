@@ -38,5 +38,5 @@ resource "azurerm_static_web_app" "hugo" {
 
 # Output the default hostname of the Web App
 output "website_url" {
-  value = "https://${azurerm_linux_web_app.app_wa.default_hostname}"
+  value = "https://${azurerm_static_web_app.hugo.default_host_name}"
 }
