@@ -1,7 +1,8 @@
 az login
 
 RESOURCE_GROUP_NAME="terraform"
-STORAGE_ACCOUNT_NAME="tfstatehugo$(openssl rand -hex 3)"
+# $(openssl rand -hex 3)"
+STORAGE_ACCOUNT_NAME="tfstatehugo793"
 CONTAINER_NAME="tfstate"
 LOCATION="norwayeast"
 
@@ -29,9 +30,15 @@ az ad sp create --id $AZURE_CLIENT_ID
 # Grant the Service Principal the Contributor role over your subscription
 az role assignment create \
   --role "Contributor" \
-  --subscription $AZURE_SUBSCRIPTION_ID \
   --assignee-object-id $(az ad sp show --id $AZURE_CLIENT_ID --query id -o tsv) \
-  --assignee-principal-type ServicePrincipal
+  --assignee-principal-type ServicePrincipal \
+  --scope "/subscriptions/$AZURE_SUBSCRIPTION_ID"
+
+az role assignment create \
+  --role "Storage Blob Data Contributor" \
+  --assignee-object-id $(az ad sp show --id $AZURE_CLIENT_ID --query id -o tsv) \
+  --assignee-principal-type ServicePrincipal \
+  --scope "/subscriptions/$AZURE_SUBSCRIPTION_ID/resourceGroups/$RESOURCE_GROUP_NAME/providers/Microsoft.Storage/storageAccounts/$STORAGE_ACCOUNT_NAME"
 
 # This is the key step: Create the federated credential trust
 # It tells Azure to trust tokens from the main branch of your specific GitHub repo
