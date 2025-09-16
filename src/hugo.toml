@@ -79,7 +79,3 @@ title = "vetle.dev"
 # --- POST PAGE WIDGETS ---
 [[params.widgets.page]]
     type = "toc"
-
-# --- OUTPUT FORMATS ---
-[outputs]
-  search = ["HTML", "JSON"]
