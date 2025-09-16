@@ -1,7 +1,7 @@
-# Base configuration
-baseURL = "http://localhost:1313/"
+# --- BASE CONFIG ---
+baseURL = "https://vetle.dev"
 languageCode = "en-us"
-title = "vetlekise"
+title = "vetle.dev"
 
 [module]
   [[module.imports]]
@@ -10,6 +10,7 @@ title = "vetlekise"
 [pagination]
   pagerSize = 5
 
+# --- THEME CONFIG ---
 [params]
     mainSections = ["posts"]
     featuredImageField = "image"
@@ -17,7 +18,7 @@ title = "vetlekise"
     favicon = "/favicon.ico"
 
     [params.sidebar]
-        subtitle = "Lorem ipsum dolor sit amet, consectetur adipiscing elit."
+        subtitle = "Senior Cloud Engineer @ Sopra Steria"
         compact = false
         
         [params.sidebar.avatar]
@@ -41,17 +42,17 @@ title = "vetlekise"
     url = "/search/"
     weight = 40
 
-# --- SOCIAL ICONS MENU (Corrected Structure) ---
+# --- SOCIAL ICONS MENU ---
 [[menu.social]]
     name = "GitHub"
-    url = "https://github.com/your-username"
+    url = "https://github.com/vetlekise"
     weight = 10
     [menu.social.params]
         icon = "brand-github"
 
 [[menu.social]]
     name = "LinkedIn"
-    url = "https://linkedin.com/in/your-username"
+    url = "https://linkedin.com/in/vetlekise"
     weight = 30
     [menu.social.params]
         icon = "brand-linkedin"
@@ -75,6 +76,6 @@ title = "vetlekise"
     [params.widgets.homepage.params]
         limit = 20
 
-# --- POST PAGE WIDGETS (Corrected) ---
+# --- POST PAGE WIDGETS ---
 [[params.widgets.page]]
     type = "toc"
