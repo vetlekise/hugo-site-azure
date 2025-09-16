@@ -1,7 +1,7 @@
 # --- BASE CONFIG ---
 baseURL = "https://vetle.dev"
 languageCode = "en-us"
-title = "vetle.dev"
+title = "Vetle's Blog"
 
 [module]
   [[module.imports]]
