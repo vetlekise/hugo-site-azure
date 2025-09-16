@@ -1,7 +1,7 @@
 variable "project_name" {
   description = "A unique name for the project, used to name resources."
   type        = string
-  default     = "hugo"
+  default     = "hugo-app"
 }
 
 variable "location" {
@@ -32,6 +32,12 @@ variable "github_repo" {
   description = "The GitHub repository to link the Static Web App to."
   type        = string
   default     = "hugo-site-azure"
+}
+
+variable "github_branch" {
+  description = "The branch of the GitHub repository to link the Static Web App to."
+  type        = string
+  default     = "main"
 }
 
 variable "github_pat" {

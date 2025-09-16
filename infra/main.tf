@@ -24,7 +24,7 @@ resource "azurerm_resource_group" "hugo" {
   name     = var.project_name
   location = var.location
 }
-/*
+
 # Create a free static web app
 resource "azurerm_static_web_app" "hugo" {
   name                = var.project_name
@@ -34,7 +34,7 @@ resource "azurerm_static_web_app" "hugo" {
   sku_size            = "Free"
 
   repository_url    = "https://github.com/${var.github_owner}/${var.github_repo}"
-  repository_branch = "main"
+  repository_branch = var.github_branch
   repository_token  = var.github_pat
 }
 
@@ -57,4 +57,3 @@ output "custom_domain_validation_token" {
   sensitive   = true
   value       = var.add_custom_domain ? azurerm_static_web_app_custom_domain.apex[0].validation_token : "Custom domain not created. Set add_custom_domain to true to get a token."
 }
-*/
