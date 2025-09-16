@@ -16,7 +16,7 @@ az storage account create --name $STORAGE_ACCOUNT_NAME --resource-group $RESOURC
 az storage container create --name $CONTAINER_NAME --account-name $STORAGE_ACCOUNT_NAME
 
 # Set variables for your configuration
-APP_NAME="hugo-github-federation"
+APP_NAME="Hugo - GitHub Actions"
 YOUR_GITHUB_ORG="vetlekise"
 YOUR_REPO_NAME="hugo-site-azure"
 
@@ -45,6 +45,11 @@ az role assignment create \
 az ad app federated-credential create \
   --id $AZURE_CLIENT_ID \
   --parameters '{"name":"github-main-branch","issuer":"https://token.actions.githubusercontent.com","subject":"repo:'$YOUR_GITHUB_ORG'/'$YOUR_REPO_NAME':ref:refs/heads/main","description":"Trust main branch","audiences":["api://AzureADTokenExchange"]}'
+
+# Credential for PULL REQUESTS (for terraform plan)
+az ad app federated-credential create \
+  --id $AZURE_CLIENT_ID \
+  --parameters '{"name":"github-pull-requests","issuer":"https://token.actions.githubusercontent.com","subject":"repo:'$YOUR_GITHUB_ORG'/'$YOUR_REPO_NAME':pull_request","description":"Trust pull requests","audiences":["api://AzureADTokenExchange"]}'
 
 # You will need the following values for your GitHub secrets.
 # Your terminal will display them after running the commands.
