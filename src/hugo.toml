@@ -1,4 +1,4 @@
-# --- BASE CONFIG ---
+# --- CONFIG ---
 baseURL = "https://vetle.dev"
 languageCode = "en-us"
 title = "Vetle's Blog"
@@ -10,12 +10,39 @@ title = "Vetle's Blog"
 [pagination]
   pagerSize = 5
 
-# --- THEME CONFIG ---
+# -- MARKUP ---
+[markup]
+    [markup.tableOfContents]
+        endLevel = 4
+        ordered = false
+        startLevel = 2
+
+    [markup.highlight]
+        noClasses = false
+        codeFences = true
+        guessSyntax = true
+        lineNoStart = 1
+        lineNos = true
+        lineNumbersInTable = true
+        tabWidth = 4
+
+# --- PARAMS ---
 [params]
-    mainSections = ["posts"]
+    mainSections = ["post"]
     featuredImageField = "image"
+    rssFullContent = false
     description = "A blog about technology, tutorials, and my thoughts."
     favicon = "/favicon.ico"
+
+    [params.colorScheme]
+        default = "auto"
+        toggle = true
+        
+    [params.imageProcessing.cover]
+        enabled = true
+
+    [params.imageProcessing.content]
+        enabled = true
 
     [params.sidebar]
         subtitle = "Senior Cloud Engineer @ Sopra Steria"
@@ -27,11 +54,16 @@ title = "Vetle's Blog"
             src = "img/avatar.png" 
 
     [params.article]
+        headingAnchor = true
         toc = true
         readingTime = true
         wordCount = true
+    
+    [params.footer]
+        since = 2025
+        customText = "Testing custom footer text"
 
-# --- SOCIAL ICONS MENU ---
+# --- MENU ---
 [[menu.social]]
     name = "GitHub"
     url = "https://github.com/vetlekise"
@@ -68,3 +100,20 @@ title = "Vetle's Blog"
 # --- POST PAGE WIDGETS ---
 [[params.widgets.page]]
     type = "toc"
+
+## -- PERMALINKS ---
+[permalinks]
+    post = "/p/:slug/"
+    page = "/:slug/"
+
+[related]
+    includeNewer = true
+    threshold = 60
+    toLower = false
+
+    [[related.indices]]
+        name = "tags"
+        weight = 100
+    [[related.indices]]
+        name = "categories"
+        weight = 200
