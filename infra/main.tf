@@ -49,7 +49,8 @@ resource "azurerm_static_web_app_custom_domain" "apex" {
 
 # Output the default hostname of the Static Web App
 output "website_url" {
-  value = "https://${azurerm_static_web_app.hugo.default_host_name}"
+  description = "The primary URL for the website. Displays the custom domain if enabled."
+  value = var.add_custom_domain ? "https://${var.custom_domain}" : "https://${azurerm_static_web_app.hugo.default_host_name}"
 }
 
 output "custom_domain_validation_token" {
