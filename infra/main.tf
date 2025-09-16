@@ -30,9 +30,12 @@ resource "azurerm_static_web_app" "hugo" {
   name                = var.project_name
   resource_group_name = azurerm_resource_group.hugo.name
   location            = azurerm_resource_group.hugo.location
+  sku_tier            = "Free"
+  sku_size            = "Free"
 
-  sku_tier = "Free"
-  sku_size = "Free"
+  repository_url    = "https://github.com/${var.github_owner}/${var.github_repo}"
+  repository_branch = "main"
+  repository_token  = var.github_pat
 }
 
 resource "azurerm_static_web_app_custom_domain" "apex" {
