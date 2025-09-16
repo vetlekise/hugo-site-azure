@@ -31,17 +31,6 @@ title = "vetle.dev"
         readingTime = true
         wordCount = true
 
-# --- MAIN NAVIGATION MENU ---
-[[menu.main]]
-    name = "Archives"
-    url = "/archives/"
-    weight = 30
-
-[[menu.main]]
-    name = "Search"
-    url = "/search/"
-    weight = 40
-
 # --- SOCIAL ICONS MENU ---
 [[menu.social]]
     name = "GitHub"
