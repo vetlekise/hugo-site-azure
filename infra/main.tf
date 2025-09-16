@@ -46,7 +46,6 @@ resource "azurerm_static_web_app_custom_domain" "apex" {
   validation_type   = "dns-txt-token"
 }
 
-
 # Output the default hostname of the Static Web App
 output "website_url" {
   description = "The primary URL for the website. Displays the custom domain if enabled."
