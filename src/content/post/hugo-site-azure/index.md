@@ -1,6 +1,6 @@
 ---
 title: Deploy a Static Hugo Website to Azure using Terraform and GitHub Actions for Free
-description: Learn how to deploy a static Hugo website to Azure using Infrastructure as Code with Terraform and automated workflows powered by GitHub Actions for free. This guide covers provisioning resources, configuring deployment pipelines, and hosting your website in the cloud.
+description: This guide covers provisioning resources with Terraform, configuring deployment pipelines in GitHub Actions, and hosting your website in Azure.
 slug: hugo-site-azure
 date: 2025-09-17
 image: cover.jpg
