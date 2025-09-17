@@ -42,3 +42,24 @@ menu:
             icon: user
 ---
 ```
+
+## Pre-defined Values
+
+### Categories
+- **How-to**  
+    - Step-by-step guides for accomplishing specific tasks or resolving issues.  
+    *Example titles (Setup guides): "Deploy a Hugo Site to Azure Static Web Apps", "Setting Up Automated CI/CD for Your Blog"*  
+    *Recommended tag: `setup`*
+    *Example titles (Troubleshooting guides): "Fix Permission Errors in Azure Static Web App Deployments", "Resolve Build Failures in Hugo Projects"*  
+    *Recommended tag: `troubleshooting`*
+- **Best Practices**  
+    - Recommendations and tips for optimal approaches.  
+    *Example titles: "Best Practices for Managing Infrastructure as Code with Terraform", "Optimizing Static Site Performance on Azure"*
+- **Opinions**  
+    - Personal perspectives or commentary on technology topics.  
+    *Example titles: "Why Automated Deployments Matter for Modern Web Projects", "The Case for Using Azure over Other Cloud Providers"*
+
+### Tags
+- Application (Terraform, GitHub, Python)
+- Practice (CI/CD, DevOps, IaC)
+- How-to (setup, troubleshooting)
