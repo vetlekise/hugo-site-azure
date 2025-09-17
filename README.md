@@ -34,6 +34,7 @@ aliases:
   - example
 license: CC BY-NC-ND
 image: cover.jpg # resolution: 1000 px × 667 px
+weight: 1 # You can add weight to some posts to override the default sorting (date descending)
 menu:
     main: 
         weight: 1
