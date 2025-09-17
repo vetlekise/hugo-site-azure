@@ -17,4 +17,4 @@ This is where I share my journey through code, cloud, and all things tech. Wheth
 
 Feel free to browse, or reach out if you want to connect. Thanks for stopping by, and may the source be with you!
 
-> **Note:** In the event of my passing, these documents will be made publicly available as an archive. I hope they continue to inform and inspire others in the future.
+> **Note:** In the event of my passing, these documents shall be made publicly available as an archive. I hope they continue to inform and inspire others in the future.
