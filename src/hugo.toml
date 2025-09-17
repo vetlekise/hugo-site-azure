@@ -1,7 +1,7 @@
 # --- CONFIG ---
 baseURL = "https://vetle.dev"
 languageCode = "en-us"
-title = "Vetle's Blog"
+title = "Vetle's Tech Chronicles"
 
 [module]
   [[module.imports]]
@@ -45,7 +45,7 @@ title = "Vetle's Blog"
         enabled = true
 
     [params.sidebar]
-        subtitle = "Senior Cloud Engineer @ Sopra Steria"
+        subtitle = "Vetle Kise | Senior Cloud Engineer @ Sopra Steria"
         compact = false
         
         [params.sidebar.avatar]
@@ -61,7 +61,7 @@ title = "Vetle's Blog"
     
     [params.footer]
         since = 2025
-        customText = "Testing custom footer text"
+        # customText = ""
 
 # --- MENU ---
 [[menu.social]]
