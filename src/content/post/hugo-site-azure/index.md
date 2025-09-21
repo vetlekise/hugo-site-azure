@@ -1,6 +1,6 @@
 ---
-title: Deploy a Hugo Website to Azure With Terraform And GitHub Actions
-description: Learn to launch a Hugo website on Azure, automate deployments with a CI/CD pipeline using Terraform and GitHub Actions, and configure a custom domain.
+title: Deploy a Hugo Website to Azure With Terraform and GitHub Actions
+description: Learn to deploy a Hugo website to Azure, automate deployments with a CI/CD pipeline using Terraform and GitHub Actions, and configure a custom domain.
 slug: hugo-site-azure
 date: 2025-09-21
 categories:
@@ -78,7 +78,7 @@ With authentication configured, you can now deploy the Azure infrastructure usin
 ![](workflow-file.jpg)
 ![](github-secret.jpg)
 
-## Deploy Hugo Site
+## Deploy Hugo Website
 The final step is to configure the deployment pipeline to correctly build your Hugo site from the `src` directory and deploy it to the new Static Web App.
 1. Create a new branch, ensuring you've pulled the latest changes from `main`.
 2. Find the new workflow file at `./.github/workflows/azure-static-web-apps-<RANDOM_ID>.yml`.
