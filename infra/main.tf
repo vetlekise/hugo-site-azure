@@ -10,7 +10,7 @@ terraform {
     storage_account_name = "tfstatehugo793"
     container_name       = "tfstate"
     key                  = "hugo.tfstate"
-    use_oidc             = true
+    use_oidc             = true 
     use_azuread_auth     = true
   }
 }
@@ -47,13 +47,7 @@ resource "azurerm_static_web_app_custom_domain" "apex" {
 }
 
 # Output the default hostname of the Static Web App
-output "website_url" {
-  description = "The primary URL for the website. Displays the custom domain if enabled."
-  value = var.add_custom_domain ? "https://${var.custom_domain}" : "https://${azurerm_static_web_app.hugo.default_host_name}"
-}
-
-output "custom_domain_validation_token" {
-  description = "The TXT token needed to validate the custom domain."
-  sensitive   = true
-  value       = var.add_custom_domain ? azurerm_static_web_app_custom_domain.apex[0].validation_token : "Custom domain not created. Set add_custom_domain to true to get a token."
+output "default_host_name" {
+  description = "The default hostname of the Azure Static Web App"
+  value = "https://${azurerm_static_web_app.hugo.default_host_name}"
 }
