@@ -1,9 +1,8 @@
 ---
-title: Deploy a Hugo Website to Azure for Free
-description: Learn to launch a Hugo website on Azure for free, automate deployments with a CI/CD pipeline using Terraform and GitHub Actions, and configure a custom domain.
+title: Deploy a Hugo Website to Azure
+description: Learn to launch a Hugo website on Azure, automate deployments with a CI/CD pipeline using Terraform and GitHub Actions, and configure a custom domain.
 slug: hugo-site-azure
 date: 2025-09-21
-image: cover.jpg
 categories:
     - How-To
 tags:
@@ -98,7 +97,8 @@ output_location: "public" # <--
 
 ## Hugo Configuration
 Once your site is deployed, you can manage its content and configuration. Here’s how to work with your Hugo site's structure.
-1. The `hugo.toml` file is the main configuration for your site.
+1. The `hugo.toml` file is the main configuration for your site. Here you can add your title, description, and generally change a bunch of settings. 
+    - **NB!** For your domain to work you'll have to customize the `baseURL` to match your domain.
 2. `./content/page/*`contains menu pages, like the `About` page.
 3. `./content/post/*` contains your blog posts. Add a new directory for each post with an `index.md` file.
 4. At the top of your `index.md file`, add YAML frontmatter to configure the post. Here's an example with most of the possible config:
