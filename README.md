@@ -55,11 +55,11 @@ menu:
 - **Best Practices**  
     - Recommendations and tips for optimal approaches.  
     *Example titles: "Best Practices for Managing Infrastructure as Code with Terraform", "Optimizing Static Site Performance on Azure"*
-- **Opinions**  
+- **Thoughts**  
     - Personal perspectives or commentary on technology topics.  
     *Example titles: "Why Automated Deployments Matter for Modern Web Projects", "The Case for Using Azure over Other Cloud Providers"*
 
 ### Tags
 - Application (Terraform, GitHub, Python)
 - Practice (CI/CD, DevOps, IaC)
-- How-to (setup, troubleshooting)
+- How-to (Setup, Troubleshooting)
