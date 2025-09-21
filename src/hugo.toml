@@ -45,7 +45,7 @@ title = "Vetle's Tech Chronicles"
         enabled = true
 
     [params.sidebar]
-        subtitle = "Vetle Kise | Senior Cloud Engineer @ Sopra Steria"
+        subtitle = "A blog about technology, tutorials, and my thoughts."
         compact = false
         
         [params.sidebar.avatar]
@@ -61,7 +61,7 @@ title = "Vetle's Tech Chronicles"
     
     [params.footer]
         since = 2025
-        # customText = ""
+        customText = "All opinions are my own."
 
 # --- MENU ---
 [[menu.social]]
