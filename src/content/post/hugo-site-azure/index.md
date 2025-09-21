@@ -3,6 +3,7 @@ title: Deploy a Hugo Website to Azure
 description: Learn to launch a Hugo website on Azure, automate deployments with a CI/CD pipeline using Terraform and GitHub Actions, and configure a custom domain.
 slug: hugo-site-azure
 date: 2025-09-21
+image: cover.jpg
 categories:
     - How-To
 tags:
