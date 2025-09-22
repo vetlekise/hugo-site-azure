@@ -38,7 +38,7 @@ Instructions:
 3. Enhance: Expand on the key concepts by adding critical details, simple analogies, or examples that are relevant to the exam objectives.
 4. Focus: Ensure the final output is a concise, accurate, and exam-focused study guide based on my initial input.
 
-# My Notes:
+My Notes:
 [Paste your raw study notes here]
 ```
 
