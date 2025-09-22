@@ -133,9 +133,9 @@ If you wish to use your own domain, you'll need to update the Terraform configur
 1. In `./infra/variables.tf`, set `add_custom_domain` to true and `custom_domain` to your domain name.
 2. Commit, push, and merge these changes via a pull request.
 3. In the Azure Portal, find your Static Web App and go to the `Custom domains` section.
-4. Follow the instructions to add a `TXT` record and an `A` record to your domain's DNS settings at your registrar.
-![](a-record-p1.jpg)
-![](a-record-p2.jpg)
+4. Follow the instructions to add a `TXT` record (this is already created) and an `A` record to your domain's DNS settings at your registrar.
+![](a-record-p1.png)
+![](a-record-p2.png)
 6. This is how the DNS configuration should look like at your registrar. This example uses Cloudflare:
 ![](cloudflare-dns.jpg)
 7. Wait for DNS propagation. This may take a few minutes to a few hours.
