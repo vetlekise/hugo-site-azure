@@ -15,12 +15,12 @@ Most, if not all companies, loves to create global naming conventions for their 
 
 - **Cognitive overhead**: A name like `app-p-nwe-rg` isn't easy to read; it's a code that needs deciphering. This adds mental friction for everyone who interacts with the system.
 - **Brittleness and lies**: Cloud resources are dynamic. What happens when the app in `nwe` (Norway East) is migrated to West Europe? Renaming is often impossible, so the name becomes a lie, making it even harder to understand.
-- **Maintenance and enforcement**: You have to write extensive documentation for the naming convention, build complex validation rules (e.g., regex in pipelines), and constantly update both. This is a time sink that doesn't deliver value you or your customer.
+- **Maintenance and enforcement**: You have to write extensive documentation for the naming convention, build complex validation rules (e.g., regex in pipelines), and constantly update both. This is a time sink that doesn't deliver value.
 - **Different world views**: People are different. Some will try to change it to support their specific view of the world. This adds friction.
 
 ## Names for Humans, Tags for Machines
 Resource names should describe its **purpose**, while its metadata should be handled by **tags**.
-- **Meaningful names**: A developer should be able to name a resource without consulting a document. For globally unique resources, appending a random string or integer is an effective pattern.
+- **Meaningful names**: A developer should be able to name a resource without consulting a document. For globally unique resources, appending a random string or integer is an effective solution.
 - **Structured metadata with tags**: Tags are the native cloud solution for metadata. They are key-value pairs that are searchable, can be used for cost allocation, and can trigger automated policies.
 - **Example**: Instead of `app-p-nwe-rg`, the resource would simply be named `my-application`. The metadata is captured in tags:
 

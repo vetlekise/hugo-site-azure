@@ -1,6 +1,6 @@
 ---
 title: "Ace Your IT Certification with Generative AI"
-description: "A practical guide on using generative AI to enhance study notes, create practice quizzes, and confidently pass your next IT certification exam."
+description: "A practical guide on using generative AI to enhance study notes, create practice exams, and confidently pass your next IT certification."
 slug: "genai-certification-study"
 date: 2025-09-21
 categories:
@@ -17,7 +17,7 @@ Passing an IT certification exam requires focused preparation. Generative AI can
 
 Before using AI, you need raw material. Start by enrolling in a reputable course and taking your own notes. Focus on capturing key concepts, definitions, and processes related to the exam objectives. Don't worry about perfection, the goal is to create a solid information base.
 
-### Enhance Your Notes with AI
+## Enhance Your Notes
 
 Once you have your notes, use AI to transform them into a polished study guide. This step helps clarify complex topics, correct inaccuracies, and structure the content for better retention.
 
@@ -33,7 +33,7 @@ Context:
 - Assessed Skills/Domains: [List the specific exam objectives or topics these notes cover, e.g., "1.1 Compare and contrast common security vulnerabilities and threats."]
 
 Instructions:
-1.Correct and clarify: Identify and correct any technical inaccuracies in my notes. Rephrase complex topics for better clarity.
+1. Correct and clarify: Identify and correct any technical inaccuracies in my notes. Rephrase complex topics for better clarity.
 2. Structure: Reorganize the content into a logical structure using markdown (headings, bullet points, tables, and bold text) for improved readability.
 3. Enhance: Expand on the key concepts by adding critical details, simple analogies, or examples that are relevant to the exam objectives.
 4. Focus: Ensure the final output is a concise, accurate, and exam-focused study guide based on my initial input.
@@ -42,7 +42,7 @@ Instructions:
 [Paste your raw study notes here]
 ```
 
-## Test Your Knowledge With AI
+## Test Your Knowledge
 Passive reading isn't enough. Recalling notes is crucial for success. Use AI to generate practice exams that simulate the real exam, helping you identify weak spots and get comfortable with the question format.
 
 **Prompt template**:
