@@ -4,7 +4,7 @@ description: Complex naming conventions create more problems than they solve. Th
 slug: naming-conventions
 date: 2025-09-21
 categories:
-- Thoughts
+- Discuss
 ---
 
 Yep. I hate naming things.
