@@ -1,11 +1,13 @@
 ---
 title: Manage Multiple Terraform Environments
 description: A deep dive into managing multiple environments in Infrastructure as Code with Terraform, OpenTofu, and Terragrunt.
-slug: multi-environment-iac
+slug: multi-environment-terraform
 date: 2025-10-06
 categories:
 - How-To
 ---
+
+## Introduction
 
 Every project starts simple, but when managing infrastructure for `dev`, `test`, and `prod`, let alone multiple customers, it quickly becomes complex. How can we solve this chaos?
 
@@ -14,12 +16,13 @@ We'll tackle the common issues of scalable IaC, and go through a clear journey f
 ## Isolated Folders
 This is the classic starting point when trying to figure out multi-environment setups. Its the simplest way to manage multiple environments by giving each one its own dedicated directory. 
 
-**Best for**
+### Why?
+#### Pros
 - Projects where maximum safety and state file isolation are top priorities.
 - Simpler applications where the overhead of duplicating a few files is negligible.
 - Teams new to IaC, as the logic is very easy to follow.
 
-**Primary Drawback**
+#### Cons
 The primary drawback of this pattern is code duplication. Since each environment is a distinct project, you must repeat boilerplate code, the most notorious being the `variables.tf` file in each folder. It feels tedious and violate the *Don't Repeat Yourself* (DRY) principle as your project grows.
 
 ### Project Structure
@@ -41,7 +44,7 @@ application/
 ```
 
 ### Configuration Examples
-Let's say you have another repository acting as a Terraform module called *core-infra* and you want this deployed to the `dev` environment. This module has its own `variables.tf` with variable declarations (aka. input parameters). You then declare the required variables in your application repo `application/dev/variables.tf`:
+Let's say you have another repository acting as a Terraform module called `core-infra` and you want this deployed to the `dev` environment. This module has its own `variables.tf` with variable declarations (aka. input parameters). You then declare the required variables in your application repo `dev/variables.tf`:
 
 ```terraform
 variable "vm_count" {
@@ -60,9 +63,9 @@ variable "location" {
 }
 ```
 
-This is where the duplicate code comes in. The variables you're declaring in `application/dev/variables.tf` has already been declared in the module you're calling, so this is duplicate number one (read more to find reason). You then want to deploy the same module to the `prod` environment, so now you have to duplicate the variables once again, duplicating it a second time.
+This is where the duplicate code comes in. The variables you're declaring in `dev/variables.tf` has already been declared in the module you're calling, so this is duplicate number one (read more to find reason). You then want to deploy the same module to the `prod` environment, so now you have to duplicate the variables once again, duplicating it a second time.
 
-To provide values to the variables you add the following to `application/dev/terraform.tfvars`:
+To provide values to the variables you add the following to `dev/terraform.tfvars`:
 
 ```terraform
 vm_count = 1
@@ -70,7 +73,7 @@ vm_size  = "Standard_B1s"
 location = "Norway East"
 ```
 
-In `application/dev/main.tf` is where you would call your reusable module *core-infra*.
+In `dev/main.tf` is where you would call your reusable module `core-infra`.
 
 ```terraform
 module "core_infra" {
@@ -202,10 +205,9 @@ Terraform has a feature called [Workspaces](https://developer.hashicorp.com/terr
 
 While Terraform workspaces *work*, we are going to leverage an exclusive OpenTofu feature `early variable evaluation` to make our lives easier.
 
-**This code FAILS in Terraform**
-
-You cannot enable or disable a module based on the workspace.
+**FAILS** in Terraform:
 ```terraform
+# You cannot enable or disable a module based on the workspace.
 module "monitoring_alerts" {
   source = "./modules/monitoring"
 
@@ -213,10 +215,9 @@ module "monitoring_alerts" {
 }
 ```
 
-**This code WORKS in OpenTofu**
-
-You can enable or disable a modules based on the workspace.
+**WORKS** in OpenTofu:
 ```terraform
+# You can enable or disable a modules based on the workspace.
 module "monitoring_alerts" {
   source = "./modules/monitoring"
 
@@ -224,13 +225,13 @@ module "monitoring_alerts" {
 }
 ```
 
-**Best For**
+### Why?
+#### Pros
 - Managing a single application or self-contained service across multiple environments.
 - Teams that want to minimize boilerplate and avoid duplicating `variables.tf` files.
 - Workflows where environments are mostly similar, with differences that can be controlled by variables or simple logic.
 
-**Primary Drawback**
-
+#### Cons
 While the workspace pattern keeps your code DRY, it may not work when your needs grow and the differences between environments multiply. Your configurations can become filled with complex conditional logic. For example, you might start with one conditional. But soon, you add a `dev` environment that also needs autoscaling. Then `test` needs a specific feature flag.
 
 ### Project Structure
@@ -323,7 +324,7 @@ tofu apply -var-file="dev.tfvars"
 ```
 
 ### CI/CD Pipeline (GitHub Actions)
-This CI/CD setup uses a powerful GitHub Actions feature called reusable workflows to keep your pipeline DRY and easy to manage. The logic is split into two files: a reusable *worker* that performs the deployment, and a main *orchestrator* that defines the release process.
+This CI/CD setup uses a powerful GitHub Actions feature called reusable workflows to keep your pipeline DRY and easy to manage. The logic is split into two files: a reusable **worker** that performs the deployment, and a main **orchestrator** that defines the release process.
 
 `reusable-deploy.yml`
 
@@ -392,6 +393,200 @@ jobs:
 ```
 
 ## Terragrunt Stacks
-HCP Terraform feature, Terragrunt with terragrunt.stack.hcl
+As your application grows, its infrastructure often evolves from a single component into a **stack** of several interdependent services; like a virtual network, a database, and the application servers that rely on them. The OpenTofu workspace pattern can become cumbersome when managing the deployment order and dependencies of such a stack.
+
+This is where Terragrunt, a thin wrapper for OpenTofu and Terraform, becomes essential. It excels at managing multi-component applications and keeping your configurations DRY.
+
+### Why?
+#### Pros
+- Applications with multiple, interdependent infrastructure components.
+- Scenarios where deployment order is critical (e.g., the network must be created before the database).
+- Teams wanting to maximize DRY principles by centralizing backend, provider, and variable configurations.
+
+#### Cons
+- **SOMETHING**
+
+### Project Structure
+Terragrunt uses a hierarchical repository where each component of your stack is defined in its own folder.
+```
+application/
+├── terragrunt.hcl         # Root config (backend, common variables)
+│
+└── dev/
+    ├── terragrunt.stack.hcl # Defines the entire stack for 'dev'
+    │
+    ├── vnet/
+    │   └── terragrunt.hcl   # Calls the vnet module
+    ├── database/
+    │   └── terragrunt.hcl   # Calls the database module
+    └── app/
+        └── terragrunt.hcl   # Calls the app module
+```
+
+### Configuration Examples
+`terragrunt.hcl`
+
+This file, at the top of your repository, defines configurations that are inherited by all other modules, eliminating repetition.
+
+```terraform
+# Configure the remote state backend ONCE for all modules.
+remote_state {
+  backend = "azurerm"
+  generate = {
+    path      = "backend.tf"
+    if_exists = "overwrite_terragrunt"
+  }
+  config = {
+    resource_group_name  = "tfstate-rg"
+    storage_account_name = "mycompanytfstate"
+    container_name       = "tfstate"
+    key                  = "${path_relative_to_include()}/terraform.tfstate"
+  }
+}
+
+# Define common inputs for all modules in this repo
+inputs = {
+  location    = "Norway East"
+}
+```
+
+`dev/terragrunt.stack.hcl`
+
+This file orchestrates the deployment for the `dev` environment. It defines the components and their relationships.
+
+```terraform
+# This block tells Terragrunt to deploy the modules in this specific order.
+# Terragrunt is smart enough to pass outputs from 'vnet' to 'database', etc.
+dependencies {
+  paths = ["../vnet", "../database", "../app"]
+}
+```
+
+`dev/app/terragrunt.hcl`
+
+Configurations for each component become simple. They just point to the correct versioned module and inherit everything else.
+```terraform
+# Include the root configuration to inherit the backend and common inputs
+include "root" {
+  path = find_in_parent_folders()
+}
+
+# Define the source of the OpenTofu module for this component
+terraform {
+  source = "git@github.com:your-org/app.git?ref=v1.0.0"
+}
+
+# Define inputs specific to this component
+inputs = {
+  vm_count = 2
+  vm_size  = "Standard_B2s"
+}
+
+# Define dependencies on other components in the stack.
+# Terragrunt will automatically fetch the outputs from the 'database' module.
+dependency "database" {
+  config_path = "../database"
+}
+
+# Use the outputs from the dependency
+inputs = {
+  db_connection_string = dependency.database.outputs.connection_string
+}
+```
+
+### Local Workflow
+To deploy the entire `dev` stack in the correct order, you run a command from the environment's directory:
+```bash
+# Navigate to the environment folder
+cd application/dev
+
+# This command plans/applies all modules in the order defined in terragrunt.stack.hcl
+terragrunt run-all plan
+terragrunt run-all apply
+```
+
+### CI/CD Pipeline (GitHub Actions)
+This workflow uses a change detection action to find modified Terragrunt folders. When a component like `app` is changed, it will run `terragrunt plan` in that directory. Terragrunt is smart enough to automatically include any dependencies (like `database`) in its plan to ensure everything is consistent.
+
+```yaml
+name: 'Dynamic Terragrunt CI/CD'
+
+on:
+  pull_request:
+    branches: [main]
+    paths: ['dev/**', 'prod/**']
+  push:
+    branches: [main]
+    paths: ['dev/**', 'prod/**']
+
+jobs:
+  plan:
+    name: 'Terragrunt Plan'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+
+    steps:
+      - name: 'Checkout Code'
+        uses: actions/checkout@v4
+
+      - name: 'Setup OpenTofu'
+        uses: opentofu/setup-opentofu@v1
+
+      - name: 'Setup Terragrunt'
+        uses: gruntwork-io/setup-terragrunt@v2
+
+      - name: 'Find changed Terragrunt directories'
+        id: changed-dirs
+        uses: tj-actions/changed-files@v44
+        with:
+          # Get a space-separated string of all changed directories
+          dir_names: true
+
+      - name: 'Run Terragrunt Plan on Changed Dirs'
+        # This step runs 'terragrunt plan' in each directory that was changed.
+        # It will post a comment to the PR for each plan.
+        if: steps.changed-dirs.outputs.all_changed_files != ''
+        run: |
+          for dir in ${{ steps.changed-dirs.outputs.all_changed_files }}; do
+            terragrunt plan -out=${dir//\//-}.plan --terragrunt-working-dir ${dir}
+          done
+
+  apply:
+    name: 'Terragrunt Apply'
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: plan
+
+    steps:
+      - name: 'Checkout Code'
+        uses: actions/checkout@v4
+
+      - name: 'Setup OpenTofu'
+        uses: opentofu/setup-opentofu@v1
+
+      - name: 'Setup Terragrunt'
+        uses: gruntwork-io/setup-terragrunt@v2
+
+      - name: 'Find changed Terragrunt directories'
+        id: changed-dirs
+        uses: tj-actions/changed-files@v44
+        with:
+          dir_names: true
+
+      - name: 'Run Terragrunt Apply on Changed Dirs'
+        if: steps.changed-dirs.outputs.all_changed_files != ''
+        run: |
+          for dir in ${{ steps.changed-dirs.outputs.all_changed_files }}; do
+            terragrunt apply --terragrunt-working-dir ${dir} --terragrunt-non-interactive
+          done
+```
 
 ## Conclusion
+There is no single **best** solution, only the right one for your project's current scale and complexity.
+
+- **Starting a new, self-contained application?**
+    - **Start with OpenTofu Workspaces**. It's the cleanest, most modern approach that keeps your code DRY from day one.
+- **Is your application a "stack" of multiple, interdependent services?**
+    - **Level up to Terragrunt with** `terragrunt.stack.hcl`. It gives you the powerful dependency management and orchestration that workspaces lack.
+- **Prefer maximum simplicity and explicit configuration over DRY principles?**
+    - **The classic Isolated Folders pattern** is always a reliable and safe choice.

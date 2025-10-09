@@ -1,6 +1,6 @@
 ---
-title: "Ace Your IT Certification with Generative AI"
-description: "A practical guide on using generative AI to enhance study notes, create practice exams, and confidently pass your next IT certification."
+title: "Study With Generative AI"
+description: "A practical guide on using generative AI to enhance study notes and create practice exams."
 slug: "genai-certification-study"
 date: 2025-09-21
 categories:
@@ -11,26 +11,33 @@ tags:
 - Studying
 ---
 
-Passing an IT certification exam requires focused preparation. Generative AI can act as a powerful study partner, helping you refine your knowledge and test your skills efficiently. Here's a simple, effective workflow to integrate AI into your study routine.
+## Introduction
+Generative AI can act as a powerful study partner, helping you refine your knowledge and test your skills efficiently. Here's a simple, effective workflow to integrate AI into your study routine.
+
+## Prerequisites
+- Access to **Google Gemini 2.5 Pro**.
 
 ## Build Your Foundation
-
-Before using AI, you need raw material. Start by enrolling in a reputable course and taking your own notes. Focus on capturing key concepts, definitions, and processes related to the exam objectives. Don't worry about perfection, the goal is to create a solid information base.
+Before using AI, you need raw material. Start by enrolling in a course and start taking your own notes. Focus on capturing key concepts, definitions, and processes related to the exam objectives. Don't worry about perfection, the goal is to create a solid information base.
 
 ## Enhance Your Notes
+Once you have your notes, use AI to enhance them. This step helps clarify complex topics, correct inaccuracies, and structure the content for better retention.
 
-Once you have your notes, use AI to transform them into a polished study guide. This step helps clarify complex topics, correct inaccuracies, and structure the content for better retention.
-
-**Prompt template**:
-```
+1. Login to [gemini.google.com](https://gemini.google.com) and open a new chat.
+2. Use the below prompt template and replace the context variables with your own. Remember to include your own notes at the bottom.
+```yaml
 Role: IT Certification Expert
 
-Task:
-Analyze, refine, and enhance my personal study notes for the specified IT certification exam.
+Task: Analyze, refine, and enhance my personal study notes for the specified IT certification exam.
 
 Context:
-- Exam: [Specify the full name and code of the exam, e.g., "CompTIA Security+ SY0-701"]
-- Assessed Skills/Domains: [List the specific exam objectives or topics these notes cover, e.g., "1.1 Compare and contrast common security vulnerabilities and threats."]
+- Exam: Microsoft Certified - Azure Developer Associate
+- Assessed skills/domains:
+    - Develop Azure compute solutions
+    - Develop for Azure storage
+    - Implement Azure security
+    - Monitor, troubleshoot, and optimize Azure solutions
+    - Connect to and consume Azure services and third-party services
 
 Instructions:
 1. Correct and clarify: Identify and correct any technical inaccuracies in my notes. Rephrase complex topics for better clarity.
@@ -42,34 +49,39 @@ My Notes:
 [Paste your raw study notes here]
 ```
 
-## Test Your Knowledge
-Passive reading isn't enough. Recalling notes is crucial for success. Use AI to generate practice exams that simulate the real exam, helping you identify weak spots and get comfortable with the question format.
+## Create a Practice Exam
+Passive reading is boring. Use AI to generate practice exams that simulate the real exam, helping you identify weak spots and get comfortable with the question format.
 
-**Prompt template**:
-```
+> **Note:** Gemini 2.5 Pro is the only one I know that supports this feature.
+
+1. Login to [gemini.google.com](https://gemini.google.com) and open a new chat.
+2. Tap the `Tools` button, then choose `Guided Learning`. 
+![](gemini-choose-learning.png)
+3. Use the below prompt template and replace the context variables with your own. **NB!** You can optionally add your personal notes.
+```yaml
 Role: IT Certification Exam Simulator
 
-Task:
-Generate an interactive multiple-choice exam natively.
+Task: Generate an interactive multiple-choice exam natively.
 
 Context:
-- Exam: [Specify the full name and code of the exam, e.g., "Google Cloud Certified - Professional Cloud Architect"]
+- Exam: Microsoft Certified - Azure Developer Associate
 - Assessed skills/domains:
-    - [List the specific exam objectives or domains to be covered, e.g., "1. Designing and planning a cloud solution architecture"]
-    - [e.g., "2. Managing and provisioning solution infrastructure"]
-- Number of questions: [Specify the desired number of questions, e.g., 10]
-
-Instructions:
-1. Generate content: Create unique, scenario-based multiple-choice questions based on the specified domains. Each question must have one correct answer and three plausible distractors.
-2. Format interactively: For each question, present the query and selectable options.
-3. Reveal on selection: Upon selection of an option, immediately reveal whether the choice was correct or incorrect, and display a detailed explanation. The explanation must justify the correct answer and clarify why the other options are wrong.
+    - Develop Azure compute solutions
+    - Develop for Azure storage
+    - Implement Azure security
+    - Monitor, troubleshoot, and optimize Azure solutions
+    - Connect to and consume Azure services and third-party services
+- Number of questions: 20
 ```
 
-> **Note:** Gemini 2.5 Pro is the only one *I know* that supports this feature natively.
+This is how questions look. You can optionally view a hint for the question if you're struggling, and it will show you if you chose the correct one or not.
+![](exam-question.png)
 
-Here's an example output with Google Gemini 2.5 Pro:
-![](exam-question.jpg)
-![](exam-end.jpg)
+When you're finished you'll see a summary page like this. You can tell it to analyze the results so you get to know what you should study more, you can ask it to create flash cards based on the same test, and you can tell it to create a study guide.
+![](exam-end.png)
+
+You can even share it! Just press the share button and send the link. 
+![](exam-share.png)
 
 ## Schedule and Pass the Exam
-With your AI-enhanced notes and targeted practice, you'll be well-prepared. Review your materials one last time, schedule your exam, and take it with confidence. Good luck!
+With your AI-enhanced notes and targeted practice, you'll be well-prepared. Review your materials one last time and schedule your exam!
