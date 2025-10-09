@@ -5,6 +5,11 @@ slug: multi-environment-terraform
 date: 2025-10-06
 categories:
 - How-To
+tags:
+- Terraform
+- OpenTofu
+- Terragrunt
+- GitHub Actions
 ---
 
 ## Introduction

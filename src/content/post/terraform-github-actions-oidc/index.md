@@ -5,6 +5,10 @@ slug: azure-terraform-github-actions-oidc
 date: 2025-10-05
 categories:
 - How-To
+tags:
+- Terraform
+- Azure
+- GitHub Actions
 ---
 
 ## What is OIDC?

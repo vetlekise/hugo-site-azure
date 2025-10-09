@@ -5,6 +5,9 @@ slug: terraform-drift-reconcile-pipeline
 date: 2025-10-05
 categories:
 - How-To
+tags:
+- Terraform
+- GitHub Actions
 ---
 
 ## What is Terraform Drift?
