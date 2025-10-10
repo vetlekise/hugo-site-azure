@@ -69,7 +69,7 @@ variable "location" {
 }
 ```
 
-This is where the duplicate code comes in. The variables you're declaring in `dev/variables.tf` has already been declared in the module you're calling, so this is duplicate number one. You then want to deploy the same module to the `prod` environment, so now you have to duplicate the variables once again, duplicating it a second time.
+This is where the duplicate code comes in. You've now declared variables in `dev/variables.tf`, but now you want to deploy the same module to the `prod` environment, so now you have to duplicate the variables in `prod/variables.tf`
 
 To provide values to the variables you add the following to `dev/terraform.tfvars`:
 
@@ -94,7 +94,7 @@ module "core_infra" {
 }
 ```
 
-Why not hardcode values in the module call you ask? 
+Why not hardcode all the values in the module call you ask? 
 
 A `.tfvars` file acts as a clean, simple *input sheet* for an environment. Someone less familiar with Terraform would immediately see all the key parameters instead of needing to look in the configuration files. You can also easily override them using `terraform apply -var="location=westeurope"` which makes automation easier.
 
@@ -105,7 +105,7 @@ To deploy the `dev` environment, navigate into its folder within the `applicatio
 git clone git@github.com:your-org/application.git
 cd application/dev
 
-# 2. Initialize OpenTofu/Terraform (this will download the module from Git)
+# 2. Initialize Terraform (this will download the module from Git)
 terraform init
 
 # 3. Plan and Apply
@@ -295,14 +295,15 @@ module "monitoring_alerts" {
 }
 ```
 
-### Why?
-#### Pros
-- Managing a single application or self-contained service across multiple environments.
-- Teams that want to minimize boilerplate and avoid duplicating `variables.tf` files.
-- Workflows where environments are mostly similar, with differences that can be controlled by variables or simple logic.
+### Pros
+- It keeps your codebase clean by using a single set of configuration files for all environments, eliminating boilerplate code.
+- Workspaces provide a safe way to manage separate state files for each environment while using the same backend configuration.
+- You can efficiently manage a single application or service across multiple similar environments from one place.
 
-#### Cons
-While the workspace pattern keeps your code DRY, it may not work when your needs grow and the differences between environments multiply. Your configurations can become filled with complex conditional logic. For example, you might start with one conditional. But soon, you add a `dev` environment that also needs autoscaling. Then `test` needs a specific feature flag.
+### Cons
+- As environments diverge, the code can become cluttered with complex conditional logic (`count`, `for_each`), making it hard to read and maintain.
+- A mistake in the single codebase can potentially affect all environments, as they are not fully isolated at the code level.
+- The pattern is less suitable for managing vastly different environments, as forcing all variations into one set of files leads to overly complicated configurations.
 
 ### Project Structure
 With workspaces, your directory structure becomes quite simple. All your config for the application lives in a single folder:
@@ -394,14 +395,14 @@ tofu apply -var-file="dev.tfvars"
 ```
 
 ### CI/CD Pipeline (GitHub Actions)
-This CI/CD setup uses a powerful GitHub Actions feature called reusable workflows to keep your pipeline DRY and easy to manage. The logic is split into two files: a reusable **worker** that performs the deployment, and a main **orchestrator** that defines the release process.
+This pipeline uses a GitHub Actions feature called **reusable workflows** to keep your pipeline DRY and easy to manage. The logic is split into two files: a reusable **worker** that performs the deployment, and a main **orchestrator** that defines the release process.
 
-`reusable-deploy.yml`
+`reusable-worker.yml`
 
 Contains all the steps to deploy to any single environment. It accepts an `environment` name as an input, which it uses to dynamically select the correct OpenTofu workspace and `tfvars` file. This means you only have to define your deployment logic once.
 
 ```yaml
-name: 'Reusable Deploy'
+name: 'Tofu Reusable Worker'
 
 on:
   workflow_call:
@@ -409,10 +410,19 @@ on:
       environment:
         required: true
         type: string
+      plan_only:
+        required: false
+        type: boolean
+        default: false
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
 
 jobs:
-  deploy:
-    name: 'Deploy to ${{ inputs.environment }}'
+  tofu:
+    name: "Tofu ${{ inputs.plan_only && 'Plan' || 'Apply' }} on ${{ inputs.environment }}"
     runs-on: ubuntu-latest
     environment: ${{ inputs.environment }}
 
@@ -420,61 +430,127 @@ jobs:
       - name: 'Checkout Code'
         uses: actions/checkout@v4
 
-      - name: 'Deploy'
-        run: |
-          tofu workspace select ${{ inputs.environment }}
-          tofu apply -var-file="${{ inputs.environment }}.tfvars" -auto-approve
+      - name: 'Setup OpenTofu'
+        uses: opentofu/setup-opentofu@v1
+
+      # Add your cloud provider login here.
+
+      - name: 'Tofu Init'
+        run: tofu init
+
+      - name: 'Select or Create Workspace'
+        run: tofu workspace select -or-create ${{ inputs.environment }}
+
+      - name: 'Tofu Validate'
+        run: tofu validate -no-color
+
+      - name: 'Tofu Plan'
+        id: plan
+        run: tofu plan -var-file="${{ inputs.environment }}.tfvars" -no-color -out=tfplan
+        continue-on-error: ${{ inputs.plan_only }}
+
+      - name: 'Post Plan Comment to PR'
+        if: inputs.plan_only && github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        env:
+          PLAN: "tofu\n${{ steps.plan.outputs.stdout }}"
+        with:
+          script: |
+            const { PLAN } = process.env;
+            const output = `#### OpenTofu Plan 📖 \`${{ github.event.pull_request.head.sha }}\` for \`${{ inputs.environment }}\`
+            <details><summary>Show Plan</summary>
+
+            \`\`\`\n${PLAN}\n\`\`\`
+
+            </details>
+
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+              body: output
+            });
+
+            if ("${{ steps.plan.outcome }}" == "failure") {
+              process.exit(1);
+            }
+
+      - name: 'Tofu Apply'
+        if: inputs.plan_only == false && steps.plan.outcome == 'success'
+        run: tofu apply -auto-approve "tfplan"
 ```
 
-`deploy.yml`
+`deploy-orchestrator.yml`
 
 The main pipeline orchestrates the release by calling the reusable workflow for each stage. The `needs:` keyword creates a promotion chain, ensuring `dev` deploys first, followed by `test`, and finally `prod`. Each job simply passes the correct `environment` name to the reusable workflow.
 
 ```yaml
-name: 'Deploy'
+name: 'Tofu Deploy Orchestrator'
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  id-token: write
+  contents: read
+  pull-requests: write
 
 jobs:
+  plan:
+    name: 'Plan for PR'
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/opentofu_workspaces_reusable.yml
+    with:
+      environment: dev
+      plan_only: true
+
   deploy-dev:
     name: 'Deploy to DEV'
-    uses: ./.github/workflows/reusable-deploy.yml
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/opentofu_workspaces_reusable.yml
     with:
       environment: dev
 
   deploy-test:
     name: 'Promote to TEST'
+    if: github.event_name == 'push'
     needs: deploy-dev
-    environment: test
-    uses: ./.github/workflows/reusable-deploy.yml
+    uses: ./.github/workflows/opentofu_workspaces_reusable.yml
     with:
       environment: test
 
   deploy-prod:
     name: 'Promote to PROD'
+    if: github.event_name == 'push'
     needs: deploy-test
-    environment: production
-    uses: ./.github/workflows/reusable-deploy.yml
+    uses: ./.github/workflows/opentofu_workspaces_reusable.yml
     with:
       environment: prod
 ```
+
+![Completed pull request with promotions](workspaces-merge.png)
 
 ## Terragrunt Stacks
 As your application grows, its infrastructure often evolves from a single component into a **stack** of several interdependent services; like a virtual network, a database, and the application servers that rely on them. The OpenTofu workspace pattern can become cumbersome when managing the deployment order and dependencies of such a stack.
 
 This is where Terragrunt, a thin wrapper for OpenTofu and Terraform, becomes essential. It excels at managing multi-component applications and keeping your configurations DRY.
 
-### Why?
-#### Pros
-- Applications with multiple, interdependent infrastructure components.
-- Scenarios where deployment order is critical (e.g., the network must be created before the database).
-- Teams wanting to maximize DRY principles by centralizing backend, provider, and variable configurations.
+### Pros
+- Terragrunt can deploy infrastructure components in the correct order, which is perfect for complex applications with multiple layers (e.g., network, then database, then app).
+- It centralizes configurations like the backend, providers, and even common variables, so you only have to define them once for all your modules.
+- It simplifies running commands across multiple modules at once, allowing you to deploy an entire environment with a single command (`terragrunt apply-all`).
 
-#### Cons
-- **SOMETHING**
+### Cons
+- It introduces another layer of abstraction and its own set of HCL files (`terragrunt.hcl`), which can be overkill for simpler projects.
+- Teams need to learn both Terraform/OpenTofu and Terragrunt's specific syntax and functions, which can slow down onboarding.
+- It's another binary to install, manage, and keep in sync with your Terraform/OpenTofu version, adding a step to your development and CI/CD setup.
 
 ### Project Structure
 Terragrunt uses a hierarchical repository where each component of your stack is defined in its own folder.
