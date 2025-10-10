@@ -2,7 +2,7 @@
 title: Develop Terraform Modules
 description: Transform your Terraform code into reliable, infrastructure components. Learn the essentials of module structure, automated documentation and versioning.
 slug: develop-terraform-modules
-date: 2025-10-05
+date: 2025-10-08
 categories:
 - How-To
 tags:

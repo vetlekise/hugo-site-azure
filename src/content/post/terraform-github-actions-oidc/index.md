@@ -2,7 +2,7 @@
 title: Eliminate Secrets From Your Terraform Azure Backend
 description: Manage Terraform state in an Azure Storage backend by building a GitHub Actions pipeline with OIDC authentication.
 slug: azure-terraform-github-actions-oidc
-date: 2025-10-05
+date: 2025-10-08
 categories:
 - How-To
 tags:

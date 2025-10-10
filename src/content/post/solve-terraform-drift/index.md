@@ -2,7 +2,7 @@
 title: Solve Terraform Drift
 description: Build an automated reconciliation pipeline with GitHub Actions to periodically detect and correct Terraform drift.
 slug: solve-terraform-drift
-date: 2025-10-05
+date: 2025-10-09
 categories:
 - How-To
 tags:
