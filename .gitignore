@@ -2,6 +2,8 @@
 # Ignore the build directory and processed resources.
 /src/public/
 /src/resources/
+.hugo_build.lock
+jsconfig.json
 
 # Local .terraform directories
 .terraform/

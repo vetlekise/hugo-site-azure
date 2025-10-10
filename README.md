@@ -55,7 +55,7 @@ menu:
 - **Best Practices**  
     - Recommendations and tips for optimal approaches.  
     *Example titles: "Best Practices for Managing Infrastructure as Code with Terraform", "Optimizing Static Site Performance on Azure"*
-- **Thoughts**  
+- **Discuss**  
     - Personal perspectives or commentary on technology topics.  
     *Example titles: "Why Automated Deployments Matter for Modern Web Projects", "The Case for Using Azure over Other Cloud Providers"*
 

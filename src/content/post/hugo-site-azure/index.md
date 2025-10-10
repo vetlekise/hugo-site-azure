@@ -1,6 +1,6 @@
 ---
-title: Deploy a Hugo Website to Azure With Terraform and GitHub Actions
-description: Learn to deploy a Hugo website to Azure, automate deployments with a CI/CD pipeline using Terraform and GitHub Actions, and configure a custom domain.
+title: Build a Hugo Website on Azure
+description: Deploy a Hugo website to Azure, automate deployments with a CI/CD pipeline using Terraform and GitHub Actions, and configure a custom domain.
 slug: hugo-site-azure
 date: 2025-09-21
 categories:
@@ -70,7 +70,7 @@ With authentication configured, you can now deploy the Azure infrastructure usin
 1. Create a new Git branch.
 2. Open `./infra/variables.tf` and edit the default values. For now, leave the custom domain variables unchanged.
 3. Commit your changes and push the branch to GitHub.
-4. Create a pull request. The workflow will automatically run and show you a `terraform plan` in a PR omment.
+4. Create a pull request. The workflow will automatically run and show you a `terraform plan` in a PR comment.
 ![](pr.jpg)
 5. Review the plan. If it's correct, merge the pull request to deploy the resources.
 ![](web-app.jpg)

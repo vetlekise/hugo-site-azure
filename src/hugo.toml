@@ -13,7 +13,7 @@ title = "Vetle's Tech Chronicles"
 # -- MARKUP ---
 [markup]
     [markup.tableOfContents]
-        endLevel = 4
+        endLevel = 3
         ordered = false
         startLevel = 2
 
