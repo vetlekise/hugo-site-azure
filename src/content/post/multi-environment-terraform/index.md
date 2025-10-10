@@ -556,7 +556,7 @@ This is where Terragrunt, a thin wrapper for OpenTofu and Terraform, becomes ess
 Terragrunt uses a hierarchical repository where each component of your stack is defined in its own folder.
 ```
 application/
-├── terragrunt.hcl         # Root config (backend, common variables)
+├── root.hcl         # Root config (backend, common variables)
 │
 └── dev/
     ├── terragrunt.stack.hcl # Defines the entire stack for 'dev'
@@ -570,7 +570,8 @@ application/
 ```
 
 ### Configuration Examples
-`terragrunt.hcl`
+
+`root.hcl`
 
 This file, at the top of your repository, defines configurations that are inherited by all other modules, eliminating repetition.
 
@@ -583,16 +584,29 @@ remote_state {
     if_exists = "overwrite_terragrunt"
   }
   config = {
-    resource_group_name  = "tfstate-rg"
-    storage_account_name = "mycompanytfstate"
-    container_name       = "tfstate"
-    key                  = "${path_relative_to_include()}/terraform.tfstate"
+    use_azuread_auth     = true
+    use_oidc             = true
+    resource_group_name  = ""
+    storage_account_name = ""
+    container_name       = ""
+    key                  = "${path_relative_to_include()}/terraform.tfstate" # e.g. dev/vnet/terraform.tfstate
   }
+}
+
+# Generate an Azure provider block for every module
+generate "provider" {
+  path      = "provider.tf"
+  if_exists = "overwrite_terragrunt"
+  contents  = <<EOF
+provider "azurerm" {
+  features {}
+}
+EOF
 }
 
 # Define common inputs for all modules in this repo
 inputs = {
-  location    = "Norway East"
+  location    = "norwayeast"
 }
 ```
 
@@ -614,7 +628,7 @@ Configurations for each component become simple. They just point to the correct 
 ```terraform
 # Include the root configuration to inherit the backend and common inputs
 include "root" {
-  path = find_in_parent_folders()
+  path = find_in_parent_folders("root.hcl")
 }
 
 # Define the source of the OpenTofu module for this component
@@ -626,17 +640,18 @@ terraform {
 inputs = {
   vm_count = 2
   vm_size  = "Standard_B2s"
+  db_connection_string = dependency.database.outputs.connection_string
 }
 
 # Define dependencies on other components in the stack.
 # Terragrunt will automatically fetch the outputs from the 'database' module.
 dependency "database" {
   config_path = "../database"
-}
 
-# Use the outputs from the dependency
-inputs = {
-  db_connection_string = dependency.database.outputs.connection_string
+  # Provide a mock output for planning when the dependency hasn't been applied yet.
+  mock_outputs = {
+    connection_string = ""
+  }
 }
 ```
 
@@ -655,77 +670,117 @@ terragrunt run-all apply
 This workflow uses a change detection action to find modified Terragrunt folders. When a component like `app` is changed, it will run `terragrunt plan` in that directory. Terragrunt is smart enough to automatically include any dependencies (like `database`) in its plan to ensure everything is consistent.
 
 ```yaml
-name: 'Dynamic Terragrunt CI/CD'
+name: 'Terragrunt Stacks'
 
 on:
   pull_request:
     branches: [main]
-    paths: ['dev/**', 'prod/**']
+    paths: ['**.hcl']
   push:
     branches: [main]
-    paths: ['dev/**', 'prod/**']
+    paths: ['**.hcl']
 
 jobs:
   plan:
-    name: 'Terragrunt Plan'
+    name: 'Plan'
     runs-on: ubuntu-latest
-    if: github.event_name == 'pull_request'
+    if: >-
+      (github.event_name == 'pull_request')
+      ||
+      (github.event_name == 'push' && github.ref == 'refs/heads/main')
 
     steps:
       - name: 'Checkout Code'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+
+      # Add cloud provider login step
 
       - name: 'Setup OpenTofu'
         uses: opentofu/setup-opentofu@v1
 
-      - name: 'Setup Terragrunt'
-        uses: gruntwork-io/setup-terragrunt@v2
+      - name: Gruntwork Terragrunt
+        uses: gruntwork-io/terragrunt-action@v3
+        with:
+            tg_version: '0.90.0'
+            tofu_version: '1.10.6'
 
       - name: 'Find changed Terragrunt directories'
         id: changed-dirs
         uses: tj-actions/changed-files@v44
         with:
-          # Get a space-separated string of all changed directories
-          dir_names: true
+          #path: ${{ env.working-directory }}
+          dir_names: "true"
+          files: |
+            dev/**
+            test/**
+            prod/**
 
       - name: 'Run Terragrunt Plan on Changed Dirs'
-        # This step runs 'terragrunt plan' in each directory that was changed.
-        # It will post a comment to the PR for each plan.
         if: steps.changed-dirs.outputs.all_changed_files != ''
         run: |
-          for dir in ${{ steps.changed-dirs.outputs.all_changed_files }}; do
-            terragrunt plan -out=${dir//\//-}.plan --terragrunt-working-dir ${dir}
-          done
+            for dir in ${{ steps.changed-dirs.outputs.all_changed_files }}; do
+                if [ -f "${dir}/terragrunt.hcl" ]; then
+                (
+                    echo "--- Planning in ${dir} ---"
+                    cd "${dir}"
+                    terragrunt plan -out="${dir//\//-}.plan"
+                )
+                else
+                echo "--- Skipping ${dir} (not a Terragrunt component) ---"
+                fi
+            done
 
   apply:
-    name: 'Terragrunt Apply'
+    name: 'Apply'
     runs-on: ubuntu-latest
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: plan
 
     steps:
       - name: 'Checkout Code'
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+
+      # Add cloud provider login step
 
       - name: 'Setup OpenTofu'
         uses: opentofu/setup-opentofu@v1
 
-      - name: 'Setup Terragrunt'
-        uses: gruntwork-io/setup-terragrunt@v2
+      - name: Gruntwork Terragrunt
+        uses: gruntwork-io/terragrunt-action@v3
+        with:
+            tg_version: '0.90.0'
+            tofu_version: '1.10.6'
 
       - name: 'Find changed Terragrunt directories'
         id: changed-dirs
         uses: tj-actions/changed-files@v44
         with:
-          dir_names: true
+          #path: ${{ env.working-directory }}
+          dir_names: "true"
+          files: |
+            dev/**
+            test/**
+            prod/**
 
       - name: 'Run Terragrunt Apply on Changed Dirs'
         if: steps.changed-dirs.outputs.all_changed_files != ''
         run: |
-          for dir in ${{ steps.changed-dirs.outputs.all_changed_files }}; do
-            terragrunt apply --terragrunt-working-dir ${dir} --terragrunt-non-interactive
-          done
+            for dir in ${{ steps.changed-dirs.outputs.all_changed_files }}; do
+                if [ -f "${dir}/terragrunt.hcl" ]; then
+                (
+                    echo "--- Applying in ${dir} ---"
+                    cd "${dir}"
+                    terragrunt apply -auto-approve
+                )
+                else
+                echo "--- Skipping ${dir} (not a Terragrunt component) ---"
+                fi
+            done
 ```
+
+![Pull request merge](grunt-merge.png)
+![Creating dev resources](grunt-apply-dev.png)
+![Creating prod resources](grunt-apply-prod.png)
 
 ## Conclusion
 There is no single **best** solution, only the right one for your project's current scale and complexity.
