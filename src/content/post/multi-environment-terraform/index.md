@@ -537,36 +537,39 @@ jobs:
 
 ![Completed pull request with promotions](workspaces-merge.png)
 
-## Terragrunt Stacks
-As your application grows, its infrastructure often evolves from a single component into a **stack** of several interdependent services; like a virtual network, a database, and the application servers that rely on them. The OpenTofu workspace pattern can become cumbersome when managing the deployment order and dependencies of such a stack.
+## Terragrunt Explicit Stacks
+As your application grows, its infrastructure often evolves from a single component into a **stack** of several interdependent services. Managing the deployment order and dependencies of a complex stack with plain OpenTofu/Terraform can become cumbersome.
 
-This is where Terragrunt, a thin wrapper for OpenTofu and Terraform, becomes essential. It excels at managing multi-component applications and keeping your configurations DRY.
+This is where Terragrunt, a thin wrapper for OpenTofu and Terraform, becomes essential. It excels at managing multi-component applications and keeping your configurations DRY. Specifically, the modern **Explicit Stack** pattern provides a powerful "blueprint" model to define and generate your entire infrastructure.
 
 ### Pros
-- Terragrunt can deploy infrastructure components in the correct order, which is perfect for complex applications with multiple layers (e.g., network, then database, then app).
-- It centralizes configurations like the backend, providers, and even common variables, so you only have to define them once for all your modules.
-- It simplifies running commands across multiple modules at once, allowing you to deploy an entire environment with a single command (`terragrunt apply-all`).
+- Define an entire stack once in a `terragrunt.stack.hcl` blueprint, then easily create copies for dev, staging, and prod.
+- See the complete composition of an environment in a single, clear blueprint file.
+- Terragrunt builds a deployment graph from your blueprint, automatically ensuring the correct deployment order.
+- Plan or apply an entire environment with a single command, like `terragrunt stack run apply`.
 
 ### Cons
-- It introduces another layer of abstraction and its own set of HCL files (`terragrunt.hcl`), which can be overkill for simpler projects.
-- Teams need to learn both Terraform/OpenTofu and Terragrunt's specific syntax and functions, which can slow down onboarding.
-- It's another binary to install, manage, and keep in sync with your Terraform/OpenTofu version, adding a step to your development and CI/CD setup.
+- Requires learning the advanced blueprint concepts of `unit` blocks, `values`, and the generation process.
+- Auto-generated files in the `.terragrunt-stack` directory can make debugging feel less direct than with simpler models.
+- The required structure (`units`, `stacks`) can be overkill for smaller projects.
 
 ### Project Structure
-Terragrunt uses a hierarchical repository where each component of your stack is defined in its own folder.
+Terragrunt separates your live infrastructure configuration from your reusable modules. Your Terraform modules live in their own versioned Git repositories, while your live infrastructure repository contains the units (`wrappers`) and stacks (`blueprints`).
 ```
 application/
-├── root.hcl         # Root config (backend, common variables)
+├── root.hcl              # Root config (backend, common variables)
 │
-└── dev/
-    ├── terragrunt.stack.hcl # Defines the entire stack for 'dev'
-    │
-    ├── vnet/
-    │   └── terragrunt.hcl   # Calls the vnet module
-    ├── database/
-    │   └── terragrunt.hcl   # Calls the database module
-    └── app/
-        └── terragrunt.hcl   # Calls the app module
+├── units/
+│   ├── resource_group/
+│   │   └── terragrunt.hcl   # Reusable wrapper for a resource_group module
+│   └── storage_account/
+│       └── terragrunt.hcl   # Reusable wrapper for a storage_account module
+│
+└── stacks/
+    └── dev/
+    │   └── terragrunt.stack.hcl # THE BLUEPRINT for the 'dev' environment
+    └── prod/
+        └── terragrunt.stack.hcl # THE BLUEPRINT for the 'prod' environment
 ```
 
 ### Configuration Examples
@@ -610,184 +613,229 @@ inputs = {
 }
 ```
 
-`dev/terragrunt.stack.hcl`
+`units/resource_group/terragrunt.hcl`
 
-This file orchestrates the deployment for the `dev` environment. It defines the components and their relationships.
+This is a reusable "unit template" that wraps your Terraform module. The `values` object is used to access variables passed down from the blueprint.
 
 ```terraform
-# This block tells Terragrunt to deploy the modules in this specific order.
-# Terragrunt is smart enough to pass outputs from 'vnet' to 'database', etc.
-dependencies {
-  paths = ["../vnet", "../database", "../app"]
-}
-```
-
-`dev/app/terragrunt.hcl`
-
-Configurations for each component become simple. They just point to the correct versioned module and inherit everything else.
-```terraform
-# Include the root configuration to inherit the backend and common inputs
 include "root" {
   path = find_in_parent_folders("root.hcl")
 }
 
-# Define the source of the OpenTofu module for this component
 terraform {
-  source = "git@github.com:your-org/app.git?ref=v1.0.0"
+  # The source URL is in from the blueprint
+  source = values.module_source
 }
 
-# Define inputs specific to this component
+# The inputs are also passed in from the blueprint's 'values'
 inputs = {
-  vm_count = 2
-  vm_size  = "Standard_B2s"
-  db_connection_string = dependency.database.outputs.connection_string
+  name        = values.name
+  environment = values.environment
+}
+```
+
+`units/storage_account/terragrunt.hcl`
+
+This unit template shows how to define a dependency. The config_path uses a variable that will be provided by the blueprint.
+
+```terraform
+include "root" {
+  path = find_in_parent_folders("root.hcl")
 }
 
-# Define dependencies on other components in the stack.
-# Terragrunt will automatically fetch the outputs from the 'database' module.
-dependency "database" {
-  config_path = "../database"
+terraform {
+  # The source URL is passed in from the blueprint
+  source = values.module_source
+}
 
-  # Provide a mock output for planning when the dependency hasn't been applied yet.
+dependency "resource_group" {
+  # The path to the dependency is passed in from the blueprint
+  config_path  = values.resource_group_path
+
   mock_outputs = {
-    connection_string = ""
+    # The mock value is passed in from the blueprint
+    rg_name = values.mock_rg_name
+  }
+}
+
+inputs = {
+  name        = values.name
+  environment = values.environment
+  rg_name     = dependency.resource_group.outputs.rg_name
+}
+```
+
+`stacks/dev/terragrunt.stack.hcl`
+
+This is the blueprint. It assembles the final environment by pointing to the reusable units and providing the specific values for `dev`.
+
+```terraform
+unit "resource_group" {
+  # Source points to our reusable Unit Template
+  source = "../../units/resource_group"
+  path   = "resource_group"
+
+  # These 'values' are passed as variables to the unit's terragrunt.hcl
+  values = {
+    # This points to your versioned Terraform module repository
+    module_source = "git::git@github.com:your-org/terraform-azurerm-resource-group.git?ref=v1.0.0"
+
+    # Module-specific inputs
+    name        = "grunt-dev"
+    environment = "dev"
+  }
+}
+
+unit "storage_account" {
+  source = "../../units/storage_account"
+  path   = "storage_account"
+
+  values = {
+    # This points to your versioned Terraform module repository
+    module_source = "git::git@github.com:your-org/terraform-azurerm-storage-account.git?ref=v1.2.0"
+
+    # Module-specific inputs
+    name        = "gruntdev932847"
+    environment = "dev"
+
+    # We pass the relative path that the dependency
+    # block in the unit template needs to find the other generated unit.
+    resource_group_path = "../resource_group"
+
+    # We also pass the mock value to keep the unit template generic.
+    mock_rg_name = "grunt-dev"
   }
 }
 ```
 
 ### Local Workflow
-To deploy the entire `dev` stack in the correct order, you run a command from the environment's directory:
-```bash
-# Navigate to the environment folder
-cd application/dev
+To deploy the entire `dev` stack, you run a `stack` command from the directory containing the blueprint.
 
-# This command plans/applies all modules in the order defined in terragrunt.stack.hcl
-terragrunt run-all plan
-terragrunt run-all apply
+```bash
+# Clone repository
+git clone git@github.com:your-org/application.git
+# Navigate to the blueprint's folder
+cd stacks/dev
+
+# This single command generates, plans, and applies the entire stack in the correct order.
+terragrunt stack run plan
+terragrunt stack run apply
 ```
 
 ### CI/CD Pipeline (GitHub Actions)
-This workflow uses a change detection action to find modified Terragrunt folders. When a component like `app` is changed, it will run `terragrunt plan` in that directory. Terragrunt is smart enough to automatically include any dependencies (like `database`) in its plan to ensure everything is consistent.
+Similar to how we did the OpenTofu pipeline, this uses a reusable workflow to create a promotion path from `dev` to `prod`. The entire process is driven by the stack blueprints.
+
+`reusable-worker.yml`
+
+This workflow performs the `plan` or `apply` for a single environment. It's cloud-agnostic and runs from the repository root.
 
 ```yaml
-name: 'Terragrunt Stacks'
-
+name: 'Terragrunt Reusable Worker'
 on:
-  pull_request:
-    branches: [main]
-    paths: ['**.hcl']
-  push:
-    branches: [main]
-    paths: ['**.hcl']
+  workflow_call:
+    inputs:
+      environment:
+        required: true
+        type: string # e.g., "dev", "prod"
+      plan_only:
+        required: false
+        type: boolean
+        default: false
+permissions:
+  id-token: write # For cloud OIDC login
+  contents: read
 
 jobs:
-  plan:
-    name: 'Plan'
+  terragrunt:
+    name: "Terragrunt ${{ inputs.plan_only && 'Plan' || 'Apply' }} on ${{ inputs.environment }}"
     runs-on: ubuntu-latest
-    if: >-
-      (github.event_name == 'pull_request')
-      ||
-      (github.event_name == 'push' && github.ref == 'refs/heads/main')
+    environment: ${{ inputs.environment }}
 
     steps:
       - name: 'Checkout Code'
-        uses: actions/checkout@v5
+        uses: actions/checkout@v4
 
-      # Add cloud provider login step
-
-      - name: 'Setup OpenTofu'
-        uses: opentofu/setup-opentofu@v1
-
-      - name: Gruntwork Terragrunt
+      - name: 'Setup OpenTofu & Terragrunt'
         uses: gruntwork-io/terragrunt-action@v3
         with:
-            tg_version: '0.90.0'
-            tofu_version: '1.10.6'
+          tg_version: 'v0.90.0'
+          tofu_version: '1.10.6'
 
-      - name: 'Find changed Terragrunt directories'
-        id: changed-dirs
-        uses: tj-actions/changed-files@v44
-        with:
-          #path: ${{ env.working-directory }}
-          dir_names: "true"
-          files: |
-            dev/**
-            test/**
-            prod/**
+        # Add your cloud provider login
 
-      - name: 'Run Terragrunt Plan on Changed Dirs'
-        if: steps.changed-dirs.outputs.all_changed_files != ''
-        run: |
-            for dir in ${{ steps.changed-dirs.outputs.all_changed_files }}; do
-                if [ -f "${dir}/terragrunt.hcl" ]; then
-                (
-                    echo "--- Planning in ${dir} ---"
-                    cd "${dir}"
-                    terragrunt plan -out="${dir//\//-}.plan"
-                )
-                else
-                echo "--- Skipping ${dir} (not a Terragrunt component) ---"
-                fi
-            done
+      - name: 'Terragrunt Plan'
+        if: inputs.plan_only
+        working-directory: stacks/${{ inputs.environment }}
+        run: terragrunt stack run plan
 
-  apply:
-    name: 'Apply'
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: plan
-
-    steps:
-      - name: 'Checkout Code'
-        uses: actions/checkout@v5
-
-      # Add cloud provider login step
-
-      - name: 'Setup OpenTofu'
-        uses: opentofu/setup-opentofu@v1
-
-      - name: Gruntwork Terragrunt
-        uses: gruntwork-io/terragrunt-action@v3
-        with:
-            tg_version: '0.90.0'
-            tofu_version: '1.10.6'
-
-      - name: 'Find changed Terragrunt directories'
-        id: changed-dirs
-        uses: tj-actions/changed-files@v44
-        with:
-          #path: ${{ env.working-directory }}
-          dir_names: "true"
-          files: |
-            dev/**
-            test/**
-            prod/**
-
-      - name: 'Run Terragrunt Apply on Changed Dirs'
-        if: steps.changed-dirs.outputs.all_changed_files != ''
-        run: |
-            for dir in ${{ steps.changed-dirs.outputs.all_changed_files }}; do
-                if [ -f "${dir}/terragrunt.hcl" ]; then
-                (
-                    echo "--- Applying in ${dir} ---"
-                    cd "${dir}"
-                    terragrunt apply -auto-approve
-                )
-                else
-                echo "--- Skipping ${dir} (not a Terragrunt component) ---"
-                fi
-            done
+      - name: 'Terragrunt Apply'
+        if: inputs.plan_only == false
+        working-directory: stacks/${{ inputs.environment }}
+        run: terragrunt stack run apply --non-interactive
 ```
 
-![Pull request merge](grunt-merge.png)
-![Creating dev resources](grunt-apply-dev.png)
-![Creating prod resources](grunt-apply-prod.png)
+`deploy-orchestrator.yml`
+
+This main pipeline orchestrates the release process by calling the reusable worker for each environment.
+
+```yaml
+name: 'Terragrunt Deploy Orchestrator'
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+    paths:
+      - '**.hcl'
+      - '.github/workflows/**'
+
+jobs:
+  plan-dev:
+    name: 'Plan Dev for PR'
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/reusable-worker.yml
+    with:
+      environment: dev
+      plan_only: true
+    secrets: inherit
+
+  deploy-dev:
+    name: 'Deploy to DEV'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    uses: ./.github/workflows/reusable-worker.yml
+    with:
+      environment: dev
+    secrets: inherit
+
+  deploy-prod:
+    name: 'Promote to PROD'
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: deploy-dev
+    uses: ./.github/workflows/reusable-worker.yml
+    with:
+      environment: prod
+    secrets: inherit
+```
+
+![Pull request merge with approvals](grunt-stacks-merge.png)
 
 ## Conclusion
 There is no single **best** solution, only the right one for your project's current scale and complexity.
 
-- **Starting a new, self-contained application?**
-    - **Start with OpenTofu Workspaces**. It's the cleanest, most modern approach that keeps your code DRY from day one.
-- **Is your application a "stack" of multiple, interdependent services?**
-    - **Level up to Terragrunt with** `terragrunt.stack.hcl`. It gives you the powerful dependency management and orchestration that workspaces lack.
-- **Prefer maximum simplicity and explicit configuration over DRY principles?**
-    - **The classic Isolated Folders pattern** is always a reliable and safe choice.
+| Feature | Isolated Folders | OpenTofu Workspaces | Terragrunt Explicit Stacks |
+| :--: | :--: | :--: | :--: |
+| Simple to Start | ✅ | ✅ | 🟡 |
+| DRY (No Repetition) | ❌ | ✅ | ✅ |
+| Strong Code Isolation | ✅ | 🟡 | ✅ |
+| Dependency Management | ❌ | ❌ | ✅ |
+| Advanced Blueprints | ❌ | ❌ | ✅ |
+| Scales for Complex Stacks | ❌ | 🟡 | ✅ |
+
+> **Note**: The GitHub Actions workflows in this article are robust foundations. I encourage you to adapt the triggers, promotion rules, and cloud provider steps to fit your team's specific needs and policies.
+
+## Resources & Links
+For more detailed information on stuff used in this article, please refer to the official documentation.
+- [OpenTofu Workspaces](https://opentofu.org/docs/language/state/workspaces/)
+- [Terragrunt Explicit Stacks](https://terragrunt.gruntwork.io/docs/features/stacks/)
+    - [Configuration Examples](https://github.com/gruntwork-io/terragrunt-infrastructure-catalog-example/tree/main/examples/terragrunt/stacks)
+- [GitHub Actions](https://docs.github.com/en/actions)
