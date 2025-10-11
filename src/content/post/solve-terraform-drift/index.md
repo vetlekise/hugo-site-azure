@@ -148,4 +148,4 @@ Before deploying this in a production environment, consider the following:
     - The user that did a manual change (ClickOps), do they really need permission to do so?
 
 ## Conclusion
-Drift is natural when managing complex systems, expecially in immature environments where processes haven't been fully developed. By implementing an automated reconciliation pipeline, you eliminate configuration drift, and create a more stable and predictable environment. It's a good step towards a mature environment.
+Drift is natural when managing complex systems, expecially in immature environments where processes haven't been fully developed. By implementing an automated reconciliation pipeline, you eliminate configuration drift, and create a more stable and predictable environment.
