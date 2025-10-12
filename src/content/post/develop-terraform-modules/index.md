@@ -12,6 +12,7 @@ tags:
 - pre-commit
 - release-drafter
 - terraform-docs
+- IaC
 ---
 
 ## Monorepo vs Multi-repo

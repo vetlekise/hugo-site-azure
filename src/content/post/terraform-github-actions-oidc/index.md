@@ -9,6 +9,7 @@ tags:
 - Terraform
 - Azure
 - GitHub Actions
+- IaC
 ---
 
 ## What is OIDC?

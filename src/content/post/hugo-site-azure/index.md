@@ -10,7 +10,6 @@ tags:
     - Azure
     - Terraform
     - IaC
-    - GitHub
     - GitHub Actions
     - Domain
     - CI/CD

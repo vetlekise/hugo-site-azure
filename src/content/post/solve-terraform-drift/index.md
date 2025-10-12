@@ -8,6 +8,7 @@ categories:
 tags:
 - Terraform
 - GitHub Actions
+- IaC
 ---
 
 ## What is Terraform Drift?

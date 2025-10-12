@@ -10,6 +10,7 @@ tags:
 - OpenTofu
 - Terragrunt
 - GitHub Actions
+- IaC
 ---
 
 ## Introduction
