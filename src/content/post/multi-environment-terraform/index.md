@@ -538,12 +538,12 @@ jobs:
 ![Completed pull request with promotions](workspaces-merge.png)
 
 ## Terragrunt Explicit Stacks
-As your application grows, its infrastructure often evolves from a single component into a **stack** of several interdependent services. Managing the deployment order and dependencies of a complex stack with plain OpenTofu/Terraform can become cumbersome.
+As your application grows, its infrastructure often evolves from a single component into a **stack** of several services. Managing the deployment order and dependencies of a complex stack with plain OpenTofu/Terraform can become difficult.
 
 This is where Terragrunt, a thin wrapper for OpenTofu and Terraform, becomes essential. It excels at managing multi-component applications and keeping your configurations DRY. Specifically, the modern **Explicit Stack** pattern provides a powerful "blueprint" model to define and generate your entire infrastructure.
 
 ### Pros
-- Define an entire stack once in a `terragrunt.stack.hcl` blueprint, then easily create copies for dev, staging, and prod.
+- Define an entire stack once in a `terragrunt.stack.hcl` blueprint, then easily create copies for `dev`, `test`, and `prod`.
 - See the complete composition of an environment in a single, clear blueprint file.
 - Terragrunt builds a deployment graph from your blueprint, automatically ensuring the correct deployment order.
 - Plan or apply an entire environment with a single command, like `terragrunt stack run apply`.
