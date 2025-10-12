@@ -15,6 +15,11 @@ tags:
     - CI/CD
 ---
 
+## What is Hugo?
+Hugo is a popular, open source static site generator written in Go, known for being extremely fast and flexible. It is used to build websites such as documentation sites, landing pages, and corporate sites by generating pre-built HTML, CSS, and JavaScript files from content written in Markdown.
+
+This very site is built with Hugo! In this guide, I'll walk you through deploying a Hugo website to an Azure Static Web App using Terraform, which, while more involved than alternatives like GitHub Pages, provides some more practical experience with IaC.
+
 ## Prerequisites
 Before you begin, ensure you have the following set up.
 - An **Azure** account with an active subscription. Make sure it has the Entra ID role `Application Administrator`, and Azure `Owner` role on the subscription.
