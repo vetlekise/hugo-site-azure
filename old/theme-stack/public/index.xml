@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Vetle&#39;s Tech Chronicles</title>
+        <link>http://localhost:1313/</link>
+        <description>Recent content on Vetle&#39;s Tech Chronicles</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Fri, 10 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Manage Multiple Terraform Environments</title>
+        <link>http://localhost:1313/post/multi-environment-terraform/</link>
+        <pubDate>Fri, 10 Oct 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/post/multi-environment-terraform/</guid>
+        <description>&lt;h2 id=&#34;introduction&#34;&gt;&lt;a href=&#34;#introduction&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Introduction
+&lt;/h2&gt;&lt;p&gt;Every project starts simple, but when managing infrastructure for &lt;code&gt;dev&lt;/code&gt;, &lt;code&gt;test&lt;/code&gt;, and &lt;code&gt;prod&lt;/code&gt;, let alone multiple customers, it quickly becomes complex. How can we solve this chaos?&lt;/p&gt;
+&lt;p&gt;We&amp;rsquo;ll tackle the common issues of scalable IaC, and go through a clear journey from basic patterns to something more advanced, showing you how to choose the right tool for the job.&lt;/p&gt;
+&lt;h2 id=&#34;isolated-folders&#34;&gt;&lt;a href=&#34;#isolated-folders&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Isolated Folders
+&lt;/h2&gt;&lt;p&gt;This is the classic starting point when trying to figure out multi-environment setups. Its the simplest way to manage multiple environments by giving each one its own dedicated directory.&lt;/p&gt;</description>
+        </item>
+        <item>
+        <title>Solve Terraform Drift</title>
+        <link>http://localhost:1313/post/solve-terraform-drift/</link>
+        <pubDate>Thu, 09 Oct 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/post/solve-terraform-drift/</guid>
+        <description>&lt;h2 id=&#34;what-is-terraform-drift&#34;&gt;&lt;a href=&#34;#what-is-terraform-drift&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;What is Terraform Drift?
+&lt;/h2&gt;&lt;blockquote&gt;
+    &lt;p&gt;Drift is the term for when the real-world state of your infrastructure differs from the state defined in your configuration.&lt;/p&gt;&lt;span class=&#34;cite&#34;&gt;&lt;span&gt;― &lt;/span&gt;&lt;span&gt;Christie Koehler, &lt;/span&gt;&lt;a href=&#34;https://www.hashicorp.com/en/blog/detecting-and-managing-drift-with-terraform&#34;&gt;&lt;cite&gt;HashiCorp Blog&lt;/cite&gt;&lt;/a&gt;&lt;/span&gt;&lt;/blockquote&gt;
+&lt;p&gt;It can be caused by many things, but urgent hotfixes and teams being unfamiliar with Infrastructure as Code (IaC) practices is the most likely cause. Its a significant problem because it undermines the core benefits of IaC.&lt;/p&gt;
+&lt;p&gt;The main issue is the loss of a single source of truth. When your code and infra tell different stories, you can no longer trust your code to be an accurate representation of your environment.&lt;/p&gt;</description>
+        </item>
+        <item>
+        <title>Develop Terraform Modules</title>
+        <link>http://localhost:1313/post/develop-terraform-modules/</link>
+        <pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/post/develop-terraform-modules/</guid>
+        <description>&lt;h2 id=&#34;monorepo-vs-multi-repo&#34;&gt;&lt;a href=&#34;#monorepo-vs-multi-repo&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Monorepo vs Multi-repo
+&lt;/h2&gt;&lt;p&gt;A &lt;strong&gt;Terraform Monorepo&lt;/strong&gt; (or &lt;strong&gt;Terralith&lt;/strong&gt;), keeps all of your Terraform modules in a single Git repository, often in a &lt;code&gt;modules&lt;/code&gt; directory. While simple at first, this pattern makes it difficult for other teams to reuse your modules and complicates versioning. It&amp;rsquo;s generally considered an anti-pattern unless the modules are highly specific to a single application.&lt;/p&gt;
+&lt;p&gt;Instead, you should almost always use the &lt;strong&gt;multi-repo&lt;/strong&gt; pattern. Each module lives in its own dedicated Git repository. This approach makes your module a standalone component that is easy to share, maintain, and version. Consumers of your module can then reference a specific version using a Git tag.&lt;/p&gt;</description>
+        </item>
+        <item>
+        <title>Eliminate Secrets From Your Terraform Azure Backend</title>
+        <link>http://localhost:1313/post/azure-terraform-github-actions-oidc/</link>
+        <pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/post/azure-terraform-github-actions-oidc/</guid>
+        <description>&lt;h2 id=&#34;what-is-oidc&#34;&gt;&lt;a href=&#34;#what-is-oidc&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;What is OIDC?
+&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;OIDC&lt;/strong&gt; stands for &lt;strong&gt;OpenID Connect&lt;/strong&gt;. It&amp;rsquo;s an identity layer built on top of the OAuth 2.0 framework.&lt;/p&gt;
+&lt;p&gt;In simple terms, it allows one application (like a GitHub Actions workflow) to securely prove its identity to another application (like a cloud provider such as Azure) without using static, long-lived secrets. Instead, the system uses a short-lived, verifiable ID Token. This process of exchanging a temporary token is often called a &amp;ldquo;federated identity&amp;rdquo; workflow and is a much more secure way to manage authentication for automated processes.&lt;/p&gt;</description>
+        </item>
+        <item>
+        <title>Build a Hugo Website on Azure</title>
+        <link>http://localhost:1313/post/hugo-site-azure/</link>
+        <pubDate>Sun, 21 Sep 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/post/hugo-site-azure/</guid>
+        <description>&lt;h2 id=&#34;what-is-hugo&#34;&gt;&lt;a href=&#34;#what-is-hugo&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;What is Hugo?
+&lt;/h2&gt;&lt;p&gt;Hugo is a popular, open source static site generator written in Go, known for being extremely fast and flexible. It is used to build websites such as documentation sites, landing pages, and corporate sites by generating pre-built HTML, CSS, and JavaScript files from content written in Markdown.&lt;/p&gt;
+&lt;p&gt;This very site is built with Hugo! In this guide, I&amp;rsquo;ll walk you through deploying a Hugo website to an Azure Static Web App using Terraform, which, while more involved than alternatives like GitHub Pages, provides some more practical experience with IaC.&lt;/p&gt;</description>
+        </item>
+        <item>
+        <title>Study With Generative AI</title>
+        <link>http://localhost:1313/post/genai-certification-study/</link>
+        <pubDate>Sun, 21 Sep 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/post/genai-certification-study/</guid>
+        <description>&lt;h2 id=&#34;introduction&#34;&gt;&lt;a href=&#34;#introduction&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Introduction
+&lt;/h2&gt;&lt;p&gt;Generative AI can act as a powerful study partner, helping you refine your knowledge and test your skills efficiently. Here&amp;rsquo;s a simple, effective workflow to integrate AI into your study routine.&lt;/p&gt;
+&lt;h2 id=&#34;prerequisites&#34;&gt;&lt;a href=&#34;#prerequisites&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Prerequisites
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;Access to &lt;strong&gt;Google Gemini 2.5 Pro&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;build-your-foundation&#34;&gt;&lt;a href=&#34;#build-your-foundation&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Build Your Foundation
+&lt;/h2&gt;&lt;p&gt;Before using AI, you need raw material. Start by enrolling in a course and start taking your own notes. Focus on capturing key concepts, definitions, and processes related to the exam objectives. Don&amp;rsquo;t worry about perfection, the goal is to create a solid information base.&lt;/p&gt;</description>
+        </item>
+        <item>
+        <title>Why Your Naming Convention Is Slowing You Down</title>
+        <link>http://localhost:1313/post/naming-conventions/</link>
+        <pubDate>Sun, 21 Sep 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/post/naming-conventions/</guid>
+        <description>&lt;h2 id=&#34;introduction&#34;&gt;&lt;a href=&#34;#introduction&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Introduction
+&lt;/h2&gt;&lt;p&gt;Yep. I hate naming things.&lt;/p&gt;
+&lt;p&gt;Most, if not all companies, loves to create global naming conventions for their resources. These conventions often become counterproductive and make creating resources a chore. Also, when you&amp;rsquo;re working with multiple customers at once, this becomes an even greater challenge.&lt;/p&gt;
+&lt;h2 id=&#34;the-hidden-costs-of-complex-names&#34;&gt;&lt;a href=&#34;#the-hidden-costs-of-complex-names&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;The Hidden Costs of Complex Names
+&lt;/h2&gt;&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Cognitive overhead&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;A name like &lt;code&gt;app-p-nwe-rg&lt;/code&gt; isn&amp;rsquo;t easy to read; it&amp;rsquo;s a code that needs deciphering. This adds mental friction for everyone who interacts with the system.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Brittleness and lies&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;Cloud resources are dynamic. What happens when the app in &lt;code&gt;nwe&lt;/code&gt; (Norway East) is migrated to West Europe? Renaming is often impossible, so the name becomes a lie, making it even harder to understand.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Maintenance and enforcement&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;You have to write extensive documentation for the naming convention, build complex validation rules (e.g., regex in pipelines), and constantly update both. This is a time sink that doesn&amp;rsquo;t deliver value.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Different world views&lt;/strong&gt;
+&lt;ul&gt;
+&lt;li&gt;People are different. Some will try to change it to support their specific view of the world. This adds friction.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;names-for-humans-tags-for-machines&#34;&gt;&lt;a href=&#34;#names-for-humans-tags-for-machines&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Names for Humans, Tags for Machines
+&lt;/h2&gt;&lt;p&gt;Resource names should describe its &lt;strong&gt;purpose&lt;/strong&gt;, while its metadata should be handled by &lt;strong&gt;tags&lt;/strong&gt;.&lt;/p&gt;</description>
+        </item>
+        <item>
+        <title>About</title>
+        <link>http://localhost:1313/about/</link>
+        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/about/</guid>
+        <description>&lt;p&gt;Hello there 👋&lt;/p&gt;
+&lt;p&gt;This is where I share my journey through code, cloud, and all things tech. Whether you&amp;rsquo;re here for deep dives, quick tips, or just to explore the archives, I hope you find something useful and inspiring.&lt;/p&gt;
+&lt;p&gt;May the source be with you!&lt;/p&gt;
+
+  &lt;blockquote&gt;
+    &lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; In the event of my passing, these documents shall be made publicly available as an archive. I hope they continue to inform and inspire others in the future.&lt;/p&gt;</description>
+        </item>
+        <item>
+        <title>Archives</title>
+        <link>http://localhost:1313/archives/</link>
+        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/archives/</guid>
+        <description></description>
+        </item>
+        <item>
+        <title>Search</title>
+        <link>http://localhost:1313/search/</link>
+        <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/search/</guid>
+        <description></description>
+        </item>
+        
+    </channel>
+</rss>

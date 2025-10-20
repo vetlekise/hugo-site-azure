@@ -37,7 +37,7 @@ Your repository will typically be organized into `dev`, `test`, and `prod` direc
 
 > **Note**: Instead of using separate repositories for your modules, you could create a `modules` directory. Problem with this is versioning and its difficult for others to reuse your module.
 
-```
+```bash
 application/
 ├── dev/
 │   ├── main.tf           # Calls the versioned 'core-infra'
@@ -308,7 +308,7 @@ module "monitoring_alerts" {
 
 ### Project Structure
 With workspaces, your directory structure becomes quite simple. All your config for the application lives in a single folder:
-```
+```bash
 application/
 ├── main.tf              # The main logic.
 ├── variables.tf         # A SINGLE declaration of all variables
@@ -556,7 +556,7 @@ This is where Terragrunt, a thin wrapper for OpenTofu and Terraform, becomes ess
 
 ### Project Structure
 Terragrunt separates your live infrastructure configuration from your reusable modules. Your Terraform modules live in their own versioned Git repositories, while your live infrastructure repository contains the units (`wrappers`) and stacks (`blueprints`).
-```
+```bash
 application/
 ├── root.hcl              # Root config (backend, common variables)
 │

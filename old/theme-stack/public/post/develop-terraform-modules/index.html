@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="Transform your Terraform code into reliable, infrastructure components. Learn the essentials of module structure, automated documentation and versioning.">
+<title>Develop Terraform Modules</title>
+
+<link rel='canonical' href='http://localhost:1313/post/develop-terraform-modules/'>
+
+<link rel="stylesheet" href="/scss/style.min.11f3a414f6185c76b6bf50d343d6c2f7cd8139b8adcdbba0bd48cb9f25af8f2d.css"><meta property='og:title' content="Develop Terraform Modules">
+<meta property='og:description' content="Transform your Terraform code into reliable, infrastructure components. Learn the essentials of module structure, automated documentation and versioning.">
+<meta property='og:url' content='http://localhost:1313/post/develop-terraform-modules/'>
+<meta property='og:site_name' content='Vetle&#39;s Tech Chronicles'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:tag' content='Terraform' /><meta property='article:tag' content='GitHub' /><meta property='article:tag' content='Git' /><meta property='article:tag' content='pre-commit' /><meta property='article:tag' content='release-drafter' /><meta property='article:tag' content='terraform-docs' /><meta property='article:tag' content='IaC' /><meta property='article:published_time' content='2025-10-08T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2025-10-08T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="Develop Terraform Modules">
+<meta name="twitter:description" content="Transform your Terraform code into reliable, infrastructure components. Learn the essentials of module structure, automated documentation and versioning.">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_325fee3f64c1ca66.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Vetle&#39;s Tech Chronicles</a></h1>
+            <h2 class="site-description">A blog about technology, tutorials, and my thoughts.</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/vetlekise'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://linkedin.com/in/vetlekise'
+                        target="_blank"
+                        title="LinkedIn"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-brand-linkedin"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 4m0 2a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2z"></path><path d="M8 11v5"></path><path d="M8 8v.01"></path><path d="M12 16v-5"></path><path d="M16 16v-3a2 2 0 00-4 0"></path></svg>
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#monorepo-vs-multi-repo">Monorepo vs Multi-repo</a></li>
+    <li><a href="#writing">Writing</a></li>
+    <li><a href="#documentation">Documentation</a></li>
+    <li><a href="#versioning">Versioning</a></li>
+    <li><a href="#using-a-repository-template">Using a Repository Template</a></li>
+    <li><a href="#conclusion">Conclusion</a></li>
+    <li><a href="#resources--links">Resources &amp; Links</a></li>
+  </ul>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/how-to/" >
+                How-To
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/develop-terraform-modules/">Develop Terraform Modules</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            Transform your Terraform code into reliable, infrastructure components. Learn the essentials of module structure, automated documentation and versioning.
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 08, 2025</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    4 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="monorepo-vs-multi-repo"><a href="#monorepo-vs-multi-repo" class="header-anchor"></a>Monorepo vs Multi-repo
+</h2><p>A <strong>Terraform Monorepo</strong> (or <strong>Terralith</strong>), keeps all of your Terraform modules in a single Git repository, often in a <code>modules</code> directory. While simple at first, this pattern makes it difficult for other teams to reuse your modules and complicates versioning. It&rsquo;s generally considered an anti-pattern unless the modules are highly specific to a single application.</p>
+<p>Instead, you should almost always use the <strong>multi-repo</strong> pattern. Each module lives in its own dedicated Git repository. This approach makes your module a standalone component that is easy to share, maintain, and version. Consumers of your module can then reference a specific version using a Git tag.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-terraform" data-lang="terraform"><span class="line"><span class="cl"><span class="kr">module</span> <span class="s2">&#34;example&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">source</span> <span class="o">=</span> <span class="s2">&#34;github.com/organization/repository?ref=v1.0.0&#34;</span><span class="c1">
+</span></span></span><span class="line"><span class="cl"><span class="c1">
+</span></span></span><span class="line"><span class="cl"><span class="c1">  # Use commit hash to prevent supply chain attacks.
+</span></span></span><span class="line"><span class="cl"><span class="c1">  # source = &#34;github.com/organization/repository-name?ref=a1b2c3d4e5f6g7h8i9j0k1l2m3n4o5p6q7r8s9t0&#34;
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="writing"><a href="#writing" class="header-anchor"></a>Writing
+</h2><p>A well-written module is like a function, it accepts inputs, performs an action and returns outputs.</p>
+<ul>
+<li><strong>Variables as an API</strong>
+<ul>
+<li>Treat your <code>variables</code> as the public API of your module. Every variable should have a clear description, type, and a default value if possible. This make it easier to use and understand.</li>
+</ul>
+</li>
+<li><strong>Focused outputs</strong>
+<ul>
+<li>Use <code>outputs</code> to expose important resource attributes that consumers of the module <em>might</em> need.</li>
+</ul>
+</li>
+<li><strong>Keep it simple</strong>
+<ul>
+<li>A good module does one thing well. For example, create one module for networking and another for a database. This makes your modules more flexible.</li>
+</ul>
+</li>
+</ul>
+<p>Example project structure:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span><span class="lnt">7
+</span><span class="lnt">8
+</span><span class="lnt">9
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="err">├──</span> <span class="n">README</span><span class="o">.</span><span class="n">md</span> <span class="c1"># Documentation and quick usage</span>
+</span></span><span class="line"><span class="cl"><span class="err">├──</span> <span class="n">main</span><span class="o">.</span><span class="n">tf</span> <span class="c1"># General configuration</span>
+</span></span><span class="line"><span class="cl"><span class="err">├──</span> <span class="n">variables</span><span class="o">.</span><span class="n">tf</span>
+</span></span><span class="line"><span class="cl"><span class="err">├──</span> <span class="n">outputs</span><span class="o">.</span><span class="n">tf</span>
+</span></span><span class="line"><span class="cl"><span class="err">├──</span> <span class="n">versions</span><span class="o">.</span><span class="n">tf</span> <span class="c1"># Required providers</span>
+</span></span><span class="line"><span class="cl"><span class="err">└──</span> <span class="n">examples</span><span class="o">/</span> <span class="c1"># More module usage examples</span>
+</span></span><span class="line"><span class="cl">    <span class="err">└──</span> <span class="n">advanced</span><span class="o">/</span>
+</span></span><span class="line"><span class="cl">        <span class="err">├──</span> <span class="n">main</span><span class="o">.</span><span class="n">tf</span>
+</span></span><span class="line"><span class="cl">        <span class="err">└──</span> <span class="n">outputs</span><span class="o">.</span><span class="n">tf</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="documentation"><a href="#documentation" class="header-anchor"></a>Documentation
+</h2><p>Good documentation is important for making your modules usable. Manually writing it tho, is boring as heck. Instead, you should automatically generate it from your code using a tool like <a class="link" href="https://github.com/terraform-docs/terraform-docs"  target="_blank" rel="noopener"
+    >terraform-docs</a>.</p>
+<p>It scans your <code>.tf</code> files and updates your <code>README.md</code> file with required versions, descriptions, types, and default values for all of your variables and outputs.</p>
+<p>To use it, run the following command in your module&rsquo;s root directory:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># This command generates a markdown table and updates your README.</span>
+</span></span><span class="line"><span class="cl">terraform-docs markdown table --output-file README.md .
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>You should ideally run this in a <a class="link" href="https://github.com/pre-commit/pre-commit"  target="_blank" rel="noopener"
+    >pre-commit</a> hook or a CI/CD pipeline to ensure your documentation is always up-to-date with your code.</p>
+<p><img src="/post/develop-terraform-modules/terraform-docs.png"
+	width="1816"
+	height="1784"
+	srcset="/post/develop-terraform-modules/terraform-docs_hu_868b9cd2ba100524.png 480w, /post/develop-terraform-modules/terraform-docs_hu_9f821bc42f242b.png 1024w"
+	loading="lazy"
+	
+		alt="Example documentation using terraform-docs"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="101"
+		data-flex-basis="244px"
+	
+></p>
+<h2 id="versioning"><a href="#versioning" class="header-anchor"></a>Versioning
+</h2><p>Versioning allows users to consume your module without worrying about unexpected breaking changes. The standard practice is to use <a class="link" href="https://semver.org/"  target="_blank" rel="noopener"
+    >Semantic Versioning (SemVer)</a>, which follows a <code>MAJOR.MINOR.PATCH</code> format.</p>
+<ul>
+<li><strong>MAJOR</strong> (<code>1.0.0</code> &gt; <code>2.0.0</code>): For incompatible or breaking changes.</li>
+<li><strong>MINOR</strong> (<code>1.0.0</code> &gt; <code>1.1.0</code>): For adding new features in a backward-compatible way.</li>
+<li><strong>PATCH</strong> (<code>1.0.0</code> &gt; <code>1.0.1</code>): For backward-compatible bug fixes.</li>
+</ul>
+<p>To release a new version in Git, you simply create and push a new Git tag.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Create a new tag for your first major release</span>
+</span></span><span class="line"><span class="cl">git tag v1.0.0
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># Push the tag to your remote repository</span>
+</span></span><span class="line"><span class="cl">git push origin v1.0.0
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>This process can also be automated with a tool like <a class="link" href="https://github.com/release-drafter/release-drafter"  target="_blank" rel="noopener"
+    >release-drafter</a>. This can be easily implemented in a GitHub Actions pipeline. It builds a release draft with a changelog based on labels in pull requests. You configure everything in a <code>.github/release-drafter.yml</code> file.</p>
+<p><img src="/post/develop-terraform-modules/release-drafter.png"
+	width="1852"
+	height="1184"
+	srcset="/post/develop-terraform-modules/release-drafter_hu_e6ef919833a22517.png 480w, /post/develop-terraform-modules/release-drafter_hu_536781171287a08.png 1024w"
+	loading="lazy"
+	
+		alt="Example release using release-drafter"
+	
+	
+		class="gallery-image" 
+		data-flex-grow="156"
+		data-flex-basis="375px"
+	
+></p>
+<h2 id="using-a-repository-template"><a href="#using-a-repository-template" class="header-anchor"></a>Using a Repository Template
+</h2><p>To save you the trouble of creating a module template yourself, I&rsquo;ve created my own template you&rsquo;re free to use - <a class="link" href="https://github.com/vetlekise/terraform-module-template"  target="_blank" rel="noopener"
+    >vetlekise/terraform-module-template</a></p>
+<p>This template includes pre-commit hooks for linting, compliance scanning, and vulnerability scanning. This catches most issues before they&rsquo;re even pushed.</p>
+<p>It also includes a CI/CD pipeline using GitHub Actions for linting, documentation, and releases. This catches stuff that gets past the pre-commit hooks. It also automatically builds your documentation, and automatically creates a release draft with a changelog based on labels in pull requests.</p>
+<h2 id="conclusion"><a href="#conclusion" class="header-anchor"></a>Conclusion
+</h2><p>By following these practices, you can create Terraform modules that are robust, reusable, and easy to maintain. Here&rsquo;s a short summary of the most important points:</p>
+<ul>
+<li>Use multi-repo project structure if you want the module to be easily maintainable and accessible to others.</li>
+<li>Look at variables as input parameters for the user.</li>
+<li>Version your modules using Semantic Versioning (X.Y.Z)</li>
+<li>Automate your documentation and versioning</li>
+</ul>
+<h2 id="resources--links"><a href="#resources--links" class="header-anchor"></a>Resources &amp; Links
+</h2><ul>
+<li><a class="link" href="https://github.com/pre-commit/pre-commit"  target="_blank" rel="noopener"
+    >pre-commit</a>
+<ul>
+<li><a class="link" href="https://github.com/antonbabenko/pre-commit-terraform"  target="_blank" rel="noopener"
+    >terraform hooks</a></li>
+</ul>
+</li>
+<li><a class="link" href="https://github.com/terraform-docs/terraform-docs"  target="_blank" rel="noopener"
+    >terraform-docs</a></li>
+<li><a class="link" href="https://github.com/release-drafter/release-drafter"  target="_blank" rel="noopener"
+    >release-drafter</a></li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+    <section class="article-tags">
+        
+            <a href="/tags/terraform/">Terraform</a>
+        
+            <a href="/tags/github/">GitHub</a>
+        
+            <a href="/tags/git/">Git</a>
+        
+            <a href="/tags/pre-commit/">Pre-Commit</a>
+        
+            <a href="/tags/release-drafter/">Release-Drafter</a>
+        
+            <a href="/tags/terraform-docs/">Terraform-Docs</a>
+        
+            <a href="/tags/iac/">IaC</a>
+        
+    </section>
+
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/post/multi-environment-terraform/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Manage Multiple Terraform Environments</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/solve-terraform-drift/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Solve Terraform Drift</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/azure-terraform-github-actions-oidc/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Eliminate Secrets From Your Terraform Azure Backend</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/hugo-site-azure/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Build a Hugo Website on Azure</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/genai-certification-study/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Study With Generative AI</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2025 Vetle&#39;s Tech Chronicles
+    </section>
+    
+    <section class="powerby">
+        
+            All opinions are my own. <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.31.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.e37a1c77e9f793cd8619172a944d78c1066956c7d5cd59e9bd51bd3e348898ea.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

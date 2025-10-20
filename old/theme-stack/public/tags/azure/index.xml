@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Azure on Vetle&#39;s Tech Chronicles</title>
+        <link>http://localhost:1313/tags/azure/</link>
+        <description>Recent content in Azure on Vetle&#39;s Tech Chronicles</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Wed, 08 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/tags/azure/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Eliminate Secrets From Your Terraform Azure Backend</title>
+        <link>http://localhost:1313/post/azure-terraform-github-actions-oidc/</link>
+        <pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/post/azure-terraform-github-actions-oidc/</guid>
+        <description>&lt;h2 id=&#34;what-is-oidc&#34;&gt;&lt;a href=&#34;#what-is-oidc&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;What is OIDC?
+&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;OIDC&lt;/strong&gt; stands for &lt;strong&gt;OpenID Connect&lt;/strong&gt;. It&amp;rsquo;s an identity layer built on top of the OAuth 2.0 framework.&lt;/p&gt;
+&lt;p&gt;In simple terms, it allows one application (like a GitHub Actions workflow) to securely prove its identity to another application (like a cloud provider such as Azure) without using static, long-lived secrets. Instead, the system uses a short-lived, verifiable ID Token. This process of exchanging a temporary token is often called a &amp;ldquo;federated identity&amp;rdquo; workflow and is a much more secure way to manage authentication for automated processes.&lt;/p&gt;</description>
+        </item>
+        <item>
+        <title>Build a Hugo Website on Azure</title>
+        <link>http://localhost:1313/post/hugo-site-azure/</link>
+        <pubDate>Sun, 21 Sep 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/post/hugo-site-azure/</guid>
+        <description>&lt;h2 id=&#34;prerequisites&#34;&gt;&lt;a href=&#34;#prerequisites&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Prerequisites
+&lt;/h2&gt;&lt;p&gt;Before you begin, ensure you have the following set up.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;An &lt;strong&gt;Azure&lt;/strong&gt; account with an active subscription. Make sure it has the Entra ID role &lt;code&gt;Application Administrator&lt;/code&gt;, and Azure &lt;code&gt;Owner&lt;/code&gt; role on the subscription.&lt;/li&gt;
+&lt;li&gt;A &lt;strong&gt;GitHub&lt;/strong&gt; account.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Locally installed tools&lt;/strong&gt;: Git, Azure CLI, and a code editor.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;(Optional)&lt;/strong&gt; A custom domain name purchased from any registrar.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;repository-setup&#34;&gt;&lt;a href=&#34;#repository-setup&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Repository Setup
+&lt;/h2&gt;&lt;p&gt;To streamline the process, a GitHub template is provided. This template contains all the necessary Terraform, GitHub Actions, and Hugo boilerplate files.&lt;/p&gt;</description>
+        </item>
+        
+    </channel>
+</rss>

@@ -40,7 +40,7 @@ A well-written module is like a function, it accepts inputs, performs an action 
     - A good module does one thing well. For example, create one module for networking and another for a database. This makes your modules more flexible.
 
 Example project structure:
-```
+```bash
 ├── README.md # Documentation and quick usage
 ├── main.tf # General configuration
 ├── variables.tf

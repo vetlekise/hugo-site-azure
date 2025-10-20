@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>GitHub Actions on Vetle&#39;s Tech Chronicles</title>
+        <link>http://localhost:1313/tags/github-actions/</link>
+        <description>Recent content in GitHub Actions on Vetle&#39;s Tech Chronicles</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Fri, 10 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/tags/github-actions/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Manage Multiple Terraform Environments</title>
+        <link>http://localhost:1313/post/multi-environment-terraform/</link>
+        <pubDate>Fri, 10 Oct 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/post/multi-environment-terraform/</guid>
+        <description>&lt;h2 id=&#34;introduction&#34;&gt;&lt;a href=&#34;#introduction&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Introduction
+&lt;/h2&gt;&lt;p&gt;Every project starts simple, but when managing infrastructure for &lt;code&gt;dev&lt;/code&gt;, &lt;code&gt;test&lt;/code&gt;, and &lt;code&gt;prod&lt;/code&gt;, let alone multiple customers, it quickly becomes complex. How can we solve this chaos?&lt;/p&gt;
+&lt;p&gt;We&amp;rsquo;ll tackle the common issues of scalable IaC, and go through a clear journey from basic patterns to something more advanced, showing you how to choose the right tool for the job.&lt;/p&gt;
+&lt;h2 id=&#34;isolated-folders&#34;&gt;&lt;a href=&#34;#isolated-folders&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Isolated Folders
+&lt;/h2&gt;&lt;p&gt;This is the classic starting point when trying to figure out multi-environment setups. Its the simplest way to manage multiple environments by giving each one its own dedicated directory.&lt;/p&gt;</description>
+        </item>
+        <item>
+        <title>Solve Terraform Drift</title>
+        <link>http://localhost:1313/post/solve-terraform-drift/</link>
+        <pubDate>Thu, 09 Oct 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/post/solve-terraform-drift/</guid>
+        <description>&lt;h2 id=&#34;what-is-terraform-drift&#34;&gt;&lt;a href=&#34;#what-is-terraform-drift&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;What is Terraform Drift?
+&lt;/h2&gt;&lt;blockquote&gt;
+    &lt;p&gt;Drift is the term for when the real-world state of your infrastructure differs from the state defined in your configuration.&lt;/p&gt;&lt;span class=&#34;cite&#34;&gt;&lt;span&gt;― &lt;/span&gt;&lt;span&gt;Christie Koehler, &lt;/span&gt;&lt;a href=&#34;https://www.hashicorp.com/en/blog/detecting-and-managing-drift-with-terraform&#34;&gt;&lt;cite&gt;HashiCorp Blog&lt;/cite&gt;&lt;/a&gt;&lt;/span&gt;&lt;/blockquote&gt;
+&lt;p&gt;It can be caused by many things, but urgent hotfixes and teams being unfamiliar with Infrastructure as Code (IaC) practices is the most likely cause. Its a significant problem because it undermines the core benefits of IaC.&lt;/p&gt;
+&lt;p&gt;The main issue is the loss of a single source of truth. When your code and infra tell different stories, you can no longer trust your code to be an accurate representation of your environment.&lt;/p&gt;</description>
+        </item>
+        <item>
+        <title>Eliminate Secrets From Your Terraform Azure Backend</title>
+        <link>http://localhost:1313/post/azure-terraform-github-actions-oidc/</link>
+        <pubDate>Wed, 08 Oct 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/post/azure-terraform-github-actions-oidc/</guid>
+        <description>&lt;h2 id=&#34;what-is-oidc&#34;&gt;&lt;a href=&#34;#what-is-oidc&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;What is OIDC?
+&lt;/h2&gt;&lt;p&gt;&lt;strong&gt;OIDC&lt;/strong&gt; stands for &lt;strong&gt;OpenID Connect&lt;/strong&gt;. It&amp;rsquo;s an identity layer built on top of the OAuth 2.0 framework.&lt;/p&gt;
+&lt;p&gt;In simple terms, it allows one application (like a GitHub Actions workflow) to securely prove its identity to another application (like a cloud provider such as Azure) without using static, long-lived secrets. Instead, the system uses a short-lived, verifiable ID Token. This process of exchanging a temporary token is often called a &amp;ldquo;federated identity&amp;rdquo; workflow and is a much more secure way to manage authentication for automated processes.&lt;/p&gt;</description>
+        </item>
+        <item>
+        <title>Build a Hugo Website on Azure</title>
+        <link>http://localhost:1313/post/hugo-site-azure/</link>
+        <pubDate>Sun, 21 Sep 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/post/hugo-site-azure/</guid>
+        <description>&lt;h2 id=&#34;prerequisites&#34;&gt;&lt;a href=&#34;#prerequisites&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Prerequisites
+&lt;/h2&gt;&lt;p&gt;Before you begin, ensure you have the following set up.&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;An &lt;strong&gt;Azure&lt;/strong&gt; account with an active subscription. Make sure it has the Entra ID role &lt;code&gt;Application Administrator&lt;/code&gt;, and Azure &lt;code&gt;Owner&lt;/code&gt; role on the subscription.&lt;/li&gt;
+&lt;li&gt;A &lt;strong&gt;GitHub&lt;/strong&gt; account.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Locally installed tools&lt;/strong&gt;: Git, Azure CLI, and a code editor.&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;(Optional)&lt;/strong&gt; A custom domain name purchased from any registrar.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2 id=&#34;repository-setup&#34;&gt;&lt;a href=&#34;#repository-setup&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Repository Setup
+&lt;/h2&gt;&lt;p&gt;To streamline the process, a GitHub template is provided. This template contains all the necessary Terraform, GitHub Actions, and Hugo boilerplate files.&lt;/p&gt;</description>
+        </item>
+        
+    </channel>
+</rss>

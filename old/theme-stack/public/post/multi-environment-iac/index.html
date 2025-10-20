@@ -1,0 +1,1605 @@
+<!DOCTYPE html>
+<html lang="en-us" dir="ltr">
+    <head><script src="/livereload.js?mindelay=10&amp;v=2&amp;port=1313&amp;path=livereload" data-no-instant defer></script><meta charset='utf-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'><meta name='description' content="A deep dive into managing multiple environments in Infrastructure as Code with Terraform, OpenTofu, and Terragrunt.">
+<title>Manage Multiple Terraform Environments</title>
+
+<link rel='canonical' href='http://localhost:1313/post/multi-environment-iac/'>
+
+<link rel="stylesheet" href="/scss/style.min.663803bebe609202d5b39d848f2d7c2dc8b598a2d879efa079fa88893d29c49c.css"><meta property='og:title' content="Manage Multiple Terraform Environments">
+<meta property='og:description' content="A deep dive into managing multiple environments in Infrastructure as Code with Terraform, OpenTofu, and Terragrunt.">
+<meta property='og:url' content='http://localhost:1313/post/multi-environment-iac/'>
+<meta property='og:site_name' content='Vetle&#39;s Tech Chronicles'>
+<meta property='og:type' content='article'><meta property='article:section' content='Post' /><meta property='article:published_time' content='2025-10-06T00:00:00&#43;00:00'/><meta property='article:modified_time' content='2025-10-06T00:00:00&#43;00:00'/>
+<meta name="twitter:title" content="Manage Multiple Terraform Environments">
+<meta name="twitter:description" content="A deep dive into managing multiple environments in Infrastructure as Code with Terraform, OpenTofu, and Terragrunt.">
+    <link rel="shortcut icon" href="/favicon.ico" />
+
+    </head>
+    <body class="
+    article-page
+    ">
+    <script>
+        (function() {
+            const colorSchemeKey = 'StackColorScheme';
+            if(!localStorage.getItem(colorSchemeKey)){
+                localStorage.setItem(colorSchemeKey, "auto");
+            }
+        })();
+    </script><script>
+    (function() {
+        const colorSchemeKey = 'StackColorScheme';
+        const colorSchemeItem = localStorage.getItem(colorSchemeKey);
+        const supportDarkMode = window.matchMedia('(prefers-color-scheme: dark)').matches === true;
+
+        if (colorSchemeItem == 'dark' || colorSchemeItem === 'auto' && supportDarkMode) {
+            
+
+            document.documentElement.dataset.scheme = 'dark';
+        } else {
+            document.documentElement.dataset.scheme = 'light';
+        }
+    })();
+</script>
+<div class="container main-container flex on-phone--column extended"><aside class="sidebar left-sidebar sticky ">
+    <button class="hamburger hamburger--spin" type="button" id="toggle-menu" aria-label="Toggle Menu">
+        <span class="hamburger-box">
+            <span class="hamburger-inner"></span>
+        </span>
+    </button>
+
+    <header>
+        
+            
+            <figure class="site-avatar">
+                <a href="/">
+                
+                    
+                    
+                    
+                        
+                        <img src="/img/avatar_hu_325fee3f64c1ca66.png" width="300"
+                            height="300" class="site-logo" loading="lazy" alt="Avatar">
+                    
+                
+                </a>
+                
+            </figure>
+            
+        
+        
+        <div class="site-meta">
+            <h1 class="site-name"><a href="/">Vetle&#39;s Tech Chronicles</a></h1>
+            <h2 class="site-description">A blog about technology, tutorials, and my thoughts.</h2>
+        </div>
+    </header><ol class="menu-social">
+            
+                <li>
+                    <a 
+                        href='https://github.com/vetlekise'
+                        target="_blank"
+                        title="GitHub"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-brand-github" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z" fill="none"/>
+  <path d="M9 19c-4.3 1.4 -4.3 -2.5 -6 -3m12 5v-3.5c0 -1 .1 -1.4 -.5 -2c2.8 -.3 5.5 -1.4 5.5 -6a4.6 4.6 0 0 0 -1.3 -3.2a4.2 4.2 0 0 0 -.1 -3.2s-1.1 -.3 -3.5 1.3a12.3 12.3 0 0 0 -6.2 0c-2.4 -1.6 -3.5 -1.3 -3.5 -1.3a4.2 4.2 0 0 0 -.1 3.2a4.6 4.6 0 0 0 -1.3 3.2c0 4.6 2.7 5.7 5.5 6c-.6 .6 -.6 1.2 -.5 2v3.5" />
+</svg>
+
+
+
+                        
+                    </a>
+                </li>
+            
+                <li>
+                    <a 
+                        href='https://linkedin.com/in/vetlekise'
+                        target="_blank"
+                        title="LinkedIn"
+                        rel="me"
+                    >
+                        
+                        
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentcolor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-brand-linkedin"><path stroke="none" d="M0 0h24v24H0z" fill="none"></path><path d="M4 4m0 2a2 2 0 012-2h12a2 2 0 012 2v12a2 2 0 01-2 2H6a2 2 0 01-2-2z"></path><path d="M8 11v5"></path><path d="M8 8v.01"></path><path d="M12 16v-5"></path><path d="M16 16v-3a2 2 0 00-4 0"></path></svg>
+                        
+                    </a>
+                </li>
+            
+        </ol><ol class="menu" id="main-menu">
+        
+        
+        
+        <li >
+            <a href='/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-home" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <polyline points="5 12 3 12 12 3 21 12 19 12" />
+  <path d="M5 12v7a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-7" />
+  <path d="M9 21v-6a2 2 0 0 1 2 -2h2a2 2 0 0 1 2 2v6" />
+</svg>
+
+
+
+                
+                <span>Home</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/about/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-user" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="7" r="4" />
+  <path d="M6 21v-2a4 4 0 0 1 4 -4h4a4 4 0 0 1 4 4v2" />
+</svg>
+
+
+
+                
+                <span>About</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/archives/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-archive" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <rect x="3" y="4" width="18" height="4" rx="2" />
+  <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2 -2v-10" />
+  <line x1="10" y1="12" x2="14" y2="12" />
+</svg>
+
+
+
+                
+                <span>Archives</span>
+            </a>
+        </li>
+        
+        
+        <li >
+            <a href='/search/' >
+                
+                
+                
+                    <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-search" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="10" cy="10" r="7" />
+  <line x1="21" y1="21" x2="15" y2="15" />
+</svg>
+
+
+
+                
+                <span>Search</span>
+            </a>
+        </li>
+        
+        <li class="menu-bottom-section">
+            <ol class="menu">
+
+                
+                    <li id="dark-mode-toggle">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-left" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="8" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-toggle-right" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="16" cy="12" r="2" />
+  <rect x="2" y="6" width="20" height="12" rx="6" />
+</svg>
+
+
+
+                        <span>Dark Mode</span>
+                    </li>
+                
+            </ol>
+        </li>
+    </ol>
+</aside>
+
+    <aside class="sidebar right-sidebar sticky">
+        
+            
+                
+    <section class="widget archives">
+        <div class="widget-icon">
+            <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-hash" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <line x1="5" y1="9" x2="19" y2="9" />
+  <line x1="5" y1="15" x2="19" y2="15" />
+  <line x1="11" y1="4" x2="7" y2="20" />
+  <line x1="17" y1="4" x2="13" y2="20" />
+</svg>
+
+
+
+        </div>
+        <h2 class="widget-title section-title">Table of contents</h2>
+        
+        <div class="widget--toc">
+            <nav id="TableOfContents">
+  <ul>
+    <li><a href="#introduction">Introduction</a></li>
+    <li><a href="#isolated-folders">Isolated Folders</a>
+      <ul>
+        <li><a href="#why">Why?</a>
+          <ul>
+            <li><a href="#pros">Pros</a></li>
+            <li><a href="#cons">Cons</a></li>
+          </ul>
+        </li>
+        <li><a href="#project-structure">Project Structure</a></li>
+        <li><a href="#configuration-examples">Configuration Examples</a></li>
+        <li><a href="#local-workflow">Local Workflow</a></li>
+        <li><a href="#cicd-pipeline-github-actions">CI/CD Pipeline (GitHub Actions)</a></li>
+      </ul>
+    </li>
+    <li><a href="#opentofu-workspaces">OpenTofu Workspaces</a>
+      <ul>
+        <li><a href="#why-1">Why?</a>
+          <ul>
+            <li><a href="#pros-1">Pros</a></li>
+            <li><a href="#cons-1">Cons</a></li>
+          </ul>
+        </li>
+        <li><a href="#project-structure-1">Project Structure</a></li>
+        <li><a href="#configuration-examples-1">Configuration Examples</a></li>
+        <li><a href="#local-workflow-1">Local Workflow</a></li>
+        <li><a href="#cicd-pipeline-github-actions-1">CI/CD Pipeline (GitHub Actions)</a></li>
+      </ul>
+    </li>
+    <li><a href="#terragrunt-stacks">Terragrunt Stacks</a>
+      <ul>
+        <li><a href="#why-2">Why?</a>
+          <ul>
+            <li><a href="#pros-2">Pros</a></li>
+            <li><a href="#cons-2">Cons</a></li>
+          </ul>
+        </li>
+        <li><a href="#project-structure-2">Project Structure</a></li>
+        <li><a href="#configuration-examples-2">Configuration Examples</a></li>
+        <li><a href="#local-workflow-2">Local Workflow</a></li>
+        <li><a href="#cicd-pipeline-github-actions-2">CI/CD Pipeline (GitHub Actions)</a></li>
+      </ul>
+    </li>
+    <li><a href="#conclusion">Conclusion</a></li>
+  </ul>
+</nav>
+        </div>
+    </section>
+
+            
+        
+    </aside>
+
+
+            <main class="main full-width">
+    <article class="main-article">
+    <header class="article-header">
+
+    <div class="article-details">
+    
+    <header class="article-category">
+        
+            <a href="/categories/how-to/" >
+                How-To
+            </a>
+        
+    </header>
+    
+
+    <div class="article-title-wrapper">
+        <h2 class="article-title">
+            <a href="/post/multi-environment-iac/">Manage Multiple Terraform Environments</a>
+        </h2>
+    
+        
+        <h3 class="article-subtitle">
+            A deep dive into managing multiple environments in Infrastructure as Code with Terraform, OpenTofu, and Terragrunt.
+        </h3>
+        
+    </div>
+
+    
+    
+    
+    
+    <footer class="article-time">
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-calendar-time" width="56" height="56" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <path d="M11.795 21h-6.795a2 2 0 0 1 -2 -2v-12a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v4" />
+  <circle cx="18" cy="18" r="4" />
+  <path d="M15 3v4" />
+  <path d="M7 3v4" />
+  <path d="M3 11h16" />
+  <path d="M18 16.496v1.504l1 1" />
+</svg>
+                <time class="article-time--published">Oct 06, 2025</time>
+            </div>
+        
+
+        
+            <div>
+                <svg xmlns="http://www.w3.org/2000/svg" class="icon icon-tabler icon-tabler-clock" width="24" height="24" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <path stroke="none" d="M0 0h24v24H0z"/>
+  <circle cx="12" cy="12" r="9" />
+  <polyline points="12 7 12 12 15 15" />
+</svg>
+
+
+
+                <time class="article-time--reading">
+                    14 minute read
+                </time>
+            </div>
+        
+    </footer>
+    
+
+    
+</div>
+
+</header>
+
+    <section class="article-content">
+    
+    
+    <h2 id="introduction"><a href="#introduction" class="header-anchor"></a>Introduction
+</h2><p>Every project starts simple, but when managing infrastructure for <code>dev</code>, <code>test</code>, and <code>prod</code>, let alone multiple customers, it quickly becomes complex. How can we solve this chaos?</p>
+<p>We&rsquo;ll tackle the common issues of scalable IaC, and go through a clear journey from basic patterns to an advanced <em>infrastructure factory</em>, showing you how to choose the right tool for the job.</p>
+<h2 id="isolated-folders"><a href="#isolated-folders" class="header-anchor"></a>Isolated Folders
+</h2><p>This is the classic starting point when trying to figure out multi-environment setups. Its the simplest way to manage multiple environments by giving each one its own dedicated directory.</p>
+<h3 id="why"><a href="#why" class="header-anchor"></a>Why?
+</h3><h4 id="pros"><a href="#pros" class="header-anchor"></a>Pros
+</h4><ul>
+<li>Projects where maximum safety and state file isolation are top priorities.</li>
+<li>Simpler applications where the overhead of duplicating a few files is negligible.</li>
+<li>Teams new to IaC, as the logic is very easy to follow.</li>
+</ul>
+<h4 id="cons"><a href="#cons" class="header-anchor"></a>Cons
+</h4><p>The primary drawback of this pattern is code duplication. Since each environment is a distinct project, you must repeat boilerplate code, the most notorious being the <code>variables.tf</code> file in each folder. It feels tedious and violate the <em>Don&rsquo;t Repeat Yourself</em> (DRY) principle as your project grows.</p>
+<h3 id="project-structure"><a href="#project-structure" class="header-anchor"></a>Project Structure
+</h3><p>Your repository will typically be organized into <code>dev</code>, <code>test</code>, and <code>prod</code> directories. Each environment then calls the modules from versioned repositories.</p>
+<blockquote>
+<p><strong>Note</strong>: Instead of using separate repositories for your modules, you could create a <code>modules</code> directory. Problem with this is versioning and its difficult for others to reuse your module.</p></blockquote>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">application</span><span class="o">/</span>
+</span></span><span class="line"><span class="cl"><span class="err">├──</span> <span class="n">dev</span><span class="o">/</span>
+</span></span><span class="line"><span class="cl"><span class="err">│</span>   <span class="err">├──</span> <span class="n">main</span><span class="o">.</span><span class="n">tf</span>           <span class="c1"># Calls the versioned &#39;app-core-module&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="err">│</span>   <span class="err">├──</span> <span class="n">variables</span><span class="o">.</span><span class="n">tf</span>      <span class="c1"># Declares variables for the dev environment</span>
+</span></span><span class="line"><span class="cl"><span class="err">│</span>   <span class="err">└──</span> <span class="n">terraform</span><span class="o">.</span><span class="n">tfvars</span>  <span class="c1"># Assigns values for dev</span>
+</span></span><span class="line"><span class="cl"><span class="err">│</span>
+</span></span><span class="line"><span class="cl"><span class="err">└──</span> <span class="n">prod</span><span class="o">/</span>
+</span></span><span class="line"><span class="cl">    <span class="err">├──</span> <span class="n">main</span><span class="o">.</span><span class="n">tf</span>
+</span></span><span class="line"><span class="cl">    <span class="err">├──</span> <span class="n">variables</span><span class="o">.</span><span class="n">tf</span>
+</span></span><span class="line"><span class="cl">    <span class="err">└──</span> <span class="n">terraform</span><span class="o">.</span><span class="n">tfvars</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="configuration-examples"><a href="#configuration-examples" class="header-anchor"></a>Configuration Examples
+</h3><p>Let&rsquo;s say you have another repository acting as a Terraform module called <code>core-infra</code> and you want this deployed to the <code>dev</code> environment. This module has its own <code>variables.tf</code> with variable declarations (aka. input parameters). You then declare the required variables in your application repo <code>dev/variables.tf</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-terraform" data-lang="terraform"><span class="line"><span class="cl"><span class="kr">variable</span> <span class="s2">&#34;vm_count&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">description</span> <span class="o">=</span> <span class="s2">&#34;Number of Azure Virtual Machines.&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">type</span>        <span class="o">=</span> <span class="nx">number</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">variable</span> <span class="s2">&#34;vm_size&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">description</span> <span class="o">=</span> <span class="s2">&#34;The Azure VM size.&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">type</span>        <span class="o">=</span> <span class="nx">string</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">variable</span> <span class="s2">&#34;location&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">description</span> <span class="o">=</span> <span class="s2">&#34;The Azure region where resources will be deployed.&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">type</span>        <span class="o">=</span> <span class="nx">string</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>This is where the duplicate code comes in. The variables you&rsquo;re declaring in <code>dev/variables.tf</code> has already been declared in the module you&rsquo;re calling, so this is duplicate number one (read more to find reason). You then want to deploy the same module to the <code>prod</code> environment, so now you have to duplicate the variables once again, duplicating it a second time.</p>
+<p>To provide values to the variables you add the following to <code>dev/terraform.tfvars</code>:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-terraform" data-lang="terraform"><span class="line"><span class="cl"><span class="nx">vm_count</span> <span class="o">=</span> <span class="m">1</span>
+</span></span><span class="line"><span class="cl"><span class="nx">vm_size</span>  <span class="o">=</span> <span class="s2">&#34;Standard_B1s&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">location</span> <span class="o">=</span> <span class="s2">&#34;Norway East&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>In <code>dev/main.tf</code> is where you would call your reusable module <code>core-infra</code>.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-terraform" data-lang="terraform"><span class="line"><span class="cl"><span class="kr">module</span> <span class="s2">&#34;core_infra&#34;</span> <span class="p">{</span><span class="c1">
+</span></span></span><span class="line"><span class="cl"><span class="c1">  # Source points to a separate Git repo and a specific version tag
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">source</span> <span class="o">=</span> <span class="s2">&#34;git@github.com:your-org/core-infra.git?ref=v1.0.0&#34;</span><span class="c1">
+</span></span></span><span class="line"><span class="cl"><span class="c1">
+</span></span></span><span class="line"><span class="cl"><span class="c1">  # Pass values to the module
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nx">environment</span> <span class="o">=</span> <span class="s2">&#34;dev&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">vm_count</span>    <span class="o">=</span> <span class="nb">var</span><span class="p">.</span><span class="nx">vm_count</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">vm_size</span>     <span class="o">=</span> <span class="nb">var</span><span class="p">.</span><span class="nx">vm_size</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">location</span>    <span class="o">=</span> <span class="nb">var</span><span class="p">.</span><span class="nx">location</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p>Why not hardcode values in the module call you ask?</p>
+<p>A <code>.tfvars</code> file acts as a clean, simple <em>input sheet</em> for an environment. Someone less familiar with Terraform would immediately see all the key parameters instead of needing to look in the configuration files. You can also easily override them using <code>terraform apply -var=&quot;location=westeurope&quot;</code> which makes automation easier.</p>
+<h3 id="local-workflow"><a href="#local-workflow" class="header-anchor"></a>Local Workflow
+</h3><p>To deploy the <code>dev</code> environment, navigate into its folder within the <code>application</code> repo:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 1. Clone the live application repo and change into it</span>
+</span></span><span class="line"><span class="cl">git clone git@github.com:your-org/application.git
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> application/dev
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 2. Initialize OpenTofu/Terraform (this will download the module from Git)</span>
+</span></span><span class="line"><span class="cl">terraform init
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 3. Plan and Apply</span>
+</span></span><span class="line"><span class="cl">terraform plan
+</span></span><span class="line"><span class="cl">terraform apply
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="cicd-pipeline-github-actions"><a href="#cicd-pipeline-github-actions" class="header-anchor"></a>CI/CD Pipeline (GitHub Actions)
+</h3><p>The following workflow example is dynamic. It looks at the changed environments and builds a matrix to dynamically run plan and apply to the correct environment.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span><span class="lnt">71
+</span><span class="lnt">72
+</span><span class="lnt">73
+</span><span class="lnt">74
+</span><span class="lnt">75
+</span><span class="lnt">76
+</span><span class="lnt">77
+</span><span class="lnt">78
+</span><span class="lnt">79
+</span><span class="lnt">80
+</span><span class="lnt">81
+</span><span class="lnt">82
+</span><span class="lnt">83
+</span><span class="lnt">84
+</span><span class="lnt">85
+</span><span class="lnt">86
+</span><span class="lnt">87
+</span><span class="lnt">88
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">nname</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Dynamic Terraform Plan &amp; Apply&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">on</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="l">main]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">paths</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;dev/**&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;test/**&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;prod/**&#39;</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">push</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="l">main]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">paths</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;dev/**&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;test/**&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;prod/**&#39;</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">jobs</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">detect-changes</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Detect Changed Environments&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l">ubuntu-latest</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">outputs</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="c"># Output a JSON array of the changed folders (e.g., [&#34;dev&#34;, &#34;prod&#34;])</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">environments</span><span class="p">:</span><span class="w"> </span><span class="l">${{ steps.filter.outputs.changes }}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">steps</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Checkout Code&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">actions/checkout@v4</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Find changed environment folders&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">filter</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">tj-actions/changed-files@v44</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">with</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">files</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">            dev
+</span></span></span><span class="line"><span class="cl"><span class="sd">            test
+</span></span></span><span class="line"><span class="cl"><span class="sd">            prod</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">plan</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Plan for ${{ matrix.environment }}&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l">ubuntu-latest</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="l">detect-changes</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l">github.event_name == &#39;pull_request&#39; &amp;&amp; needs.detect-changes.outputs.environments != &#39;[]&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">strategy</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">matrix</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">environment</span><span class="p">:</span><span class="w"> </span><span class="l">${{ fromJson(needs.detect-changes.outputs.environments) }}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">steps</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Checkout Code&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">actions/checkout@v4</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Setup Terraform&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">hashicorp/setup-terraform@v3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Terraform Init &amp; Plan&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">          terraform init
+</span></span></span><span class="line"><span class="cl"><span class="sd">          terraform plan -out=tfplan</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">working-directory</span><span class="p">:</span><span class="w"> </span><span class="l">./${{ matrix.environment }}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Upload Plan Artifact&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">actions/upload-artifact@v4</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">with</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tfplan-${{ matrix.environment }}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">path</span><span class="p">:</span><span class="w"> </span><span class="l">./${{ matrix.environment }}/tfplan</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">apply</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Apply for ${{ matrix.environment }}&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l">ubuntu-latest</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="l">detect-changes</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l">github.event_name == &#39;push&#39; &amp;&amp; needs.detect-changes.outputs.environments != &#39;[]&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">strategy</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">matrix</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">environment</span><span class="p">:</span><span class="w"> </span><span class="l">${{ fromJson(needs.detect-changes.outputs.environments) }}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">steps</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Checkout Code&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">actions/checkout@v4</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Setup Terraform&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">hashicorp/setup-terraform@v3</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Download Plan Artifact&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">actions/download-artifact@v4</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">with</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l">tfplan-${{ matrix.environment }}-${{ github.event.before }}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Terraform Apply&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">          terraform init
+</span></span></span><span class="line"><span class="cl"><span class="sd">          terraform apply -auto-approve &#34;tfplan&#34;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">working-directory</span><span class="p">:</span><span class="w"> </span><span class="l">./${{ matrix.environment }}</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="opentofu-workspaces"><a href="#opentofu-workspaces" class="header-anchor"></a>OpenTofu Workspaces
+</h2><p>Terraform has a feature called <a class="link" href="https://developer.hashicorp.com/terraform/language/state/workspaces"  target="_blank" rel="noopener"
+    >Workspaces</a> that&rsquo;s used to deploy the same code to multiple environments, keeping your configuration DRY. It still uses one backend but creates separate states for better isolation.</p>
+<p>While Terraform workspaces <em>work</em>, we are going to leverage an exclusive OpenTofu feature <code>early variable evaluation</code> to make our lives easier.</p>
+<p><strong>FAILS</strong> in Terraform:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-terraform" data-lang="terraform"><span class="line"><span class="cl"><span class="c1"># You cannot enable or disable a module based on the workspace.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kr">module</span> <span class="s2">&#34;monitoring_alerts&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">source</span> <span class="o">=</span> <span class="s2">&#34;./modules/monitoring&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nb">count</span>  <span class="o">=</span> <span class="nx">terraform</span><span class="p">.</span><span class="nx">workspace</span> <span class="o">==</span> <span class="s2">&#34;prod&#34;</span> <span class="o">?</span> <span class="m">1</span> <span class="o">:</span> <span class="m">0</span><span class="c1"> # ERROR
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><strong>WORKS</strong> in OpenTofu:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-terraform" data-lang="terraform"><span class="line"><span class="cl"><span class="c1"># You can enable or disable a modules based on the workspace.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kr">module</span> <span class="s2">&#34;monitoring_alerts&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">source</span> <span class="o">=</span> <span class="s2">&#34;./modules/monitoring&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nb">count</span>  <span class="o">=</span> <span class="nx">tofu</span><span class="p">.</span><span class="nx">workspace</span> <span class="o">==</span> <span class="s2">&#34;prod&#34;</span> <span class="o">?</span> <span class="m">1</span> <span class="o">:</span> <span class="m">0</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="why-1"><a href="#why-1" class="header-anchor"></a>Why?
+</h3><h4 id="pros-1"><a href="#pros-1" class="header-anchor"></a>Pros
+</h4><ul>
+<li>Managing a single application or self-contained service across multiple environments.</li>
+<li>Teams that want to minimize boilerplate and avoid duplicating <code>variables.tf</code> files.</li>
+<li>Workflows where environments are mostly similar, with differences that can be controlled by variables or simple logic.</li>
+</ul>
+<h4 id="cons-1"><a href="#cons-1" class="header-anchor"></a>Cons
+</h4><p>While the workspace pattern keeps your code DRY, it may not work when your needs grow and the differences between environments multiply. Your configurations can become filled with complex conditional logic. For example, you might start with one conditional. But soon, you add a <code>dev</code> environment that also needs autoscaling. Then <code>test</code> needs a specific feature flag.</p>
+<h3 id="project-structure-1"><a href="#project-structure-1" class="header-anchor"></a>Project Structure
+</h3><p>With workspaces, your directory structure becomes quite simple. All your config for the application lives in a single folder:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">application</span><span class="o">/</span>
+</span></span><span class="line"><span class="cl"><span class="err">├──</span> <span class="n">main</span><span class="o">.</span><span class="n">tf</span>              <span class="c1"># The main logic.</span>
+</span></span><span class="line"><span class="cl"><span class="err">├──</span> <span class="n">variables</span><span class="o">.</span><span class="n">tf</span>         <span class="c1"># A SINGLE declaration of all variables</span>
+</span></span><span class="line"><span class="cl"><span class="err">├──</span> <span class="n">dev</span><span class="o">.</span><span class="n">tfvars</span>           <span class="c1"># Values for the &#39;dev&#39; environment</span>
+</span></span><span class="line"><span class="cl"><span class="err">├──</span> <span class="n">prod</span><span class="o">.</span><span class="n">tfvars</span>          <span class="c1"># Values for the &#39;prod&#39; environment</span>
+</span></span><span class="line"><span class="cl"><span class="err">└──</span> <span class="n">backend</span><span class="o">.</span><span class="n">tf</span>           <span class="c1"># Defines the remote state backend</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><blockquote>
+<p><strong>Note</strong>: Example above only uses a main.tf file, but there&rsquo;s nothing stopping you from creating more configurations!</p></blockquote>
+<h3 id="configuration-examples-1"><a href="#configuration-examples-1" class="header-anchor"></a>Configuration Examples
+</h3><p><code>variables.tf</code></p>
+<p>Variables are declared only once.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-terraform" data-lang="terraform"><span class="line"><span class="cl"><span class="kr">variable</span> <span class="s2">&#34;vm_count&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">description</span> <span class="o">=</span> <span class="s2">&#34;The number of Azure Virtual Machines.&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">type</span>        <span class="o">=</span> <span class="nx">number</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">variable</span> <span class="s2">&#34;vm_size&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">description</span> <span class="o">=</span> <span class="s2">&#34;The Azure VM size (e.g., &#39;Standard_B1s&#39;).&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">type</span>        <span class="o">=</span> <span class="nx">string</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="kr">variable</span> <span class="s2">&#34;location&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">description</span> <span class="o">=</span> <span class="s2">&#34;The Azure region where resources will be deployed.&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">type</span>        <span class="o">=</span> <span class="nx">string</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>&lt;insert_env&gt;.tfvars</code></p>
+<p>Provides specific values for each environment.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-terraform" data-lang="terraform"><span class="line"><span class="cl"><span class="nx">vm_count</span> <span class="o">=</span> <span class="m">1</span>
+</span></span><span class="line"><span class="cl"><span class="nx">vm_size</span> <span class="o">=</span> <span class="s2">&#34;Standard_B1s&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="nx">location</span> <span class="o">=</span> <span class="s2">&#34;Norway East&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>main.tf</code></p>
+<p>Handle resource creation with conditionals.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-terraform" data-lang="terraform"><span class="line"><span class="cl"><span class="c1"># This main module is enabled for all workspaces
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kr">module</span> <span class="s2">&#34;core_infra&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">source</span> <span class="o">=</span> <span class="s2">&#34;git@github.com:your-org/core-infra.git?ref=v1.0.0&#34;</span>
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl">  <span class="nx">vm_count</span>    <span class="o">=</span> <span class="nb">var</span><span class="p">.</span><span class="nx">vm_count</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">vm_size</span>     <span class="o">=</span> <span class="nb">var</span><span class="p">.</span><span class="nx">vm_size</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">location</span>    <span class="o">=</span> <span class="nb">var</span><span class="p">.</span><span class="nx">location</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">environment</span> <span class="o">=</span> <span class="nx">tofu</span><span class="p">.</span><span class="nx">workspace</span><span class="c1"> # The workspace name is used to tag resources
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="p">}</span><span class="c1">
+</span></span></span><span class="line"><span class="cl"><span class="c1">
+</span></span></span><span class="line"><span class="cl"><span class="c1"># The monitoring module is conditionally enabled only in the &#39;prod&#39; environment
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="kr">module</span> <span class="s2">&#34;monitoring_alerts&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">source</span> <span class="o">=</span> <span class="s2">&#34;git@github.com:your-org/monitoring-alerts.git?ref=v1.2.0&#34;</span><span class="c1">
+</span></span></span><span class="line"><span class="cl"><span class="c1">  
+</span></span></span><span class="line"><span class="cl"><span class="c1">  # This works perfectly in OpenTofu, allowing dynamic environments
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span>  <span class="nb">count</span>  <span class="o">=</span> <span class="nx">tofu</span><span class="p">.</span><span class="nx">workspace</span> <span class="o">==</span> <span class="s2">&#34;prod&#34;</span> <span class="o">?</span> <span class="m">1</span> <span class="o">:</span> <span class="m">0</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="local-workflow-1"><a href="#local-workflow-1" class="header-anchor"></a>Local Workflow
+</h3><p>The workflow involves selecting the correct workspace context before applying.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># 1. Clone the application repo and change into it</span>
+</span></span><span class="line"><span class="cl">git clone git@github.com:your-org/application.git
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> application
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 2. Initialize OpenTofu (this will download the module from Git)</span>
+</span></span><span class="line"><span class="cl">tofu init
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 3. Create workspaces</span>
+</span></span><span class="line"><span class="cl">tofu workspace new dev
+</span></span><span class="line"><span class="cl">tofu workspace new prod
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 4. Deploy to &#39;dev&#39;</span>
+</span></span><span class="line"><span class="cl"><span class="c1"># 4.1 Switch to the &#39;dev&#39; workspace</span>
+</span></span><span class="line"><span class="cl">tofu workspace <span class="k">select</span> dev
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># 4.2 Plan and apply, specifying the correct .tfvars file</span>
+</span></span><span class="line"><span class="cl">tofu plan -var-file<span class="o">=</span><span class="s2">&#34;dev.tfvars&#34;</span>
+</span></span><span class="line"><span class="cl">tofu apply -var-file<span class="o">=</span><span class="s2">&#34;dev.tfvars&#34;</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="cicd-pipeline-github-actions-1"><a href="#cicd-pipeline-github-actions-1" class="header-anchor"></a>CI/CD Pipeline (GitHub Actions)
+</h3><p>This CI/CD setup uses a powerful GitHub Actions feature called reusable workflows to keep your pipeline DRY and easy to manage. The logic is split into two files: a reusable <strong>worker</strong> that performs the deployment, and a main <strong>orchestrator</strong> that defines the release process.</p>
+<p><code>reusable-deploy.yml</code></p>
+<p>Contains all the steps to deploy to any single environment. It accepts an <code>environment</code> name as an input, which it uses to dynamically select the correct OpenTofu workspace and <code>tfvars</code> file. This means you only have to define your deployment logic once.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Reusable Deploy&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">on</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">workflow_call</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">inputs</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">environment</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">required</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l">string</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">jobs</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">deploy</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Deploy to ${{ inputs.environment }}&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l">ubuntu-latest</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w"> </span><span class="l">${{ inputs.environment }}</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">steps</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Checkout Code&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">actions/checkout@v4</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Deploy&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">          tofu workspace select ${{ inputs.environment }}
+</span></span></span><span class="line"><span class="cl"><span class="sd">          tofu apply -var-file=&#34;${{ inputs.environment }}.tfvars&#34; -auto-approve</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>deploy.yml</code></p>
+<p>The main pipeline orchestrates the release by calling the reusable workflow for each stage. The <code>needs:</code> keyword creates a promotion chain, ensuring <code>dev</code> deploys first, followed by <code>test</code>, and finally <code>prod</code>. Each job simply passes the correct <code>environment</code> name to the reusable workflow.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Deploy&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">on</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">push</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="l">main</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">jobs</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">deploy-dev</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Deploy to DEV&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">./.github/workflows/reusable-deploy.yml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">with</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">environment</span><span class="p">:</span><span class="w"> </span><span class="l">dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">deploy-test</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Promote to TEST&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="l">deploy-dev</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w"> </span><span class="l">test</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">./.github/workflows/reusable-deploy.yml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">with</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">environment</span><span class="p">:</span><span class="w"> </span><span class="l">test</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">deploy-prod</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Promote to PROD&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="l">deploy-test</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">environment</span><span class="p">:</span><span class="w"> </span><span class="l">production</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">./.github/workflows/reusable-deploy.yml</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">with</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span><span class="nt">environment</span><span class="p">:</span><span class="w"> </span><span class="l">prod</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="terragrunt-stacks"><a href="#terragrunt-stacks" class="header-anchor"></a>Terragrunt Stacks
+</h2><p>As your application grows, its infrastructure often evolves from a single component into a <strong>stack</strong> of several interdependent services; like a virtual network, a database, and the application servers that rely on them. The OpenTofu workspace pattern can become cumbersome when managing the deployment order and dependencies of such a stack.</p>
+<p>This is where Terragrunt, a thin wrapper for OpenTofu and Terraform, becomes essential. It excels at managing multi-component applications and keeping your configurations DRY.</p>
+<h3 id="why-2"><a href="#why-2" class="header-anchor"></a>Why?
+</h3><h4 id="pros-2"><a href="#pros-2" class="header-anchor"></a>Pros
+</h4><ul>
+<li>Applications with multiple, interdependent infrastructure components.</li>
+<li>Scenarios where deployment order is critical (e.g., the network must be created before the database).</li>
+<li>Teams wanting to maximize DRY principles by centralizing backend, provider, and variable configurations.</li>
+</ul>
+<h4 id="cons-2"><a href="#cons-2" class="header-anchor"></a>Cons
+</h4><ul>
+<li><strong>SOMETHING</strong></li>
+</ul>
+<h3 id="project-structure-2"><a href="#project-structure-2" class="header-anchor"></a>Project Structure
+</h3><p>Terragrunt uses a hierarchical repository where each component of your stack is defined in its own folder.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-gdscript3" data-lang="gdscript3"><span class="line"><span class="cl"><span class="n">application</span><span class="o">/</span>
+</span></span><span class="line"><span class="cl"><span class="err">├──</span> <span class="n">terragrunt</span><span class="o">.</span><span class="n">hcl</span>         <span class="c1"># Root config (backend, common variables)</span>
+</span></span><span class="line"><span class="cl"><span class="err">│</span>
+</span></span><span class="line"><span class="cl"><span class="err">└──</span> <span class="n">dev</span><span class="o">/</span>
+</span></span><span class="line"><span class="cl">    <span class="err">├──</span> <span class="n">terragrunt</span><span class="o">.</span><span class="n">stack</span><span class="o">.</span><span class="n">hcl</span> <span class="c1"># Defines the entire stack for &#39;dev&#39;</span>
+</span></span><span class="line"><span class="cl">    <span class="err">│</span>
+</span></span><span class="line"><span class="cl">    <span class="err">├──</span> <span class="n">vnet</span><span class="o">/</span>
+</span></span><span class="line"><span class="cl">    <span class="err">│</span>   <span class="err">└──</span> <span class="n">terragrunt</span><span class="o">.</span><span class="n">hcl</span>   <span class="c1"># Calls the vnet module</span>
+</span></span><span class="line"><span class="cl">    <span class="err">├──</span> <span class="n">database</span><span class="o">/</span>
+</span></span><span class="line"><span class="cl">    <span class="err">│</span>   <span class="err">└──</span> <span class="n">terragrunt</span><span class="o">.</span><span class="n">hcl</span>   <span class="c1"># Calls the database module</span>
+</span></span><span class="line"><span class="cl">    <span class="err">└──</span> <span class="n">app</span><span class="o">/</span>
+</span></span><span class="line"><span class="cl">        <span class="err">└──</span> <span class="n">terragrunt</span><span class="o">.</span><span class="n">hcl</span>   <span class="c1"># Calls the app module</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="configuration-examples-2"><a href="#configuration-examples-2" class="header-anchor"></a>Configuration Examples
+</h3><p><code>terragrunt.hcl</code></p>
+<p>This file, at the top of your repository, defines configurations that are inherited by all other modules, eliminating repetition.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-terraform" data-lang="terraform"><span class="line"><span class="cl"><span class="c1"># Configure the remote state backend ONCE for all modules.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">remote_state</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">backend</span> <span class="o">=</span> <span class="s2">&#34;azurerm&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">generate</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">path</span>      <span class="o">=</span> <span class="s2">&#34;backend.tf&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">if_exists</span> <span class="o">=</span> <span class="s2">&#34;overwrite_terragrunt&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">config</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">resource_group_name</span>  <span class="o">=</span> <span class="s2">&#34;tfstate-rg&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">storage_account_name</span> <span class="o">=</span> <span class="s2">&#34;mycompanytfstate&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">container_name</span>       <span class="o">=</span> <span class="s2">&#34;tfstate&#34;</span>
+</span></span><span class="line"><span class="cl">    <span class="nx">key</span>                  <span class="o">=</span> <span class="s2">&#34;</span><span class="si">${</span><span class="nx">path_relative_to_include</span><span class="p">()</span><span class="si">}</span><span class="s2">/terraform.tfstate&#34;</span>
+</span></span><span class="line"><span class="cl">  <span class="p">}</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="c1">
+</span></span></span><span class="line"><span class="cl"><span class="c1">
+</span></span></span><span class="line"><span class="cl"><span class="c1"># Define common inputs for all modules in this repo
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">inputs</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">location</span>    <span class="o">=</span> <span class="s2">&#34;Norway East&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>dev/terragrunt.stack.hcl</code></p>
+<p>This file orchestrates the deployment for the <code>dev</code> environment. It defines the components and their relationships.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-terraform" data-lang="terraform"><span class="line"><span class="cl"><span class="c1"># This block tells Terragrunt to deploy the modules in this specific order.
+</span></span></span><span class="line"><span class="cl"><span class="c1"># Terragrunt is smart enough to pass outputs from &#39;vnet&#39; to &#39;database&#39;, etc.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">dependencies</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">paths</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&#34;../vnet&#34;</span><span class="p">,</span> <span class="s2">&#34;../database&#34;</span><span class="p">,</span> <span class="s2">&#34;../app&#34;</span><span class="p">]</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><p><code>dev/app/terragrunt.hcl</code></p>
+<p>Configurations for each component become simple. They just point to the correct versioned module and inherit everything else.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-terraform" data-lang="terraform"><span class="line"><span class="cl"><span class="c1"># Include the root configuration to inherit the backend and common inputs
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">include</span> <span class="s2">&#34;root&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">path</span> <span class="o">=</span> <span class="nx">find_in_parent_folders</span><span class="p">()</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="c1">
+</span></span></span><span class="line"><span class="cl"><span class="c1">
+</span></span></span><span class="line"><span class="cl"><span class="c1"># Define the source of the OpenTofu module for this component
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">terraform</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">source</span> <span class="o">=</span> <span class="s2">&#34;git@github.com:your-org/app.git?ref=v1.0.0&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="c1">
+</span></span></span><span class="line"><span class="cl"><span class="c1">
+</span></span></span><span class="line"><span class="cl"><span class="c1"># Define inputs specific to this component
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">inputs</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">vm_count</span> <span class="o">=</span> <span class="m">2</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">vm_size</span>  <span class="o">=</span> <span class="s2">&#34;Standard_B2s&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="c1">
+</span></span></span><span class="line"><span class="cl"><span class="c1">
+</span></span></span><span class="line"><span class="cl"><span class="c1"># Define dependencies on other components in the stack.
+</span></span></span><span class="line"><span class="cl"><span class="c1"># Terragrunt will automatically fetch the outputs from the &#39;database&#39; module.
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">dependency</span> <span class="s2">&#34;database&#34;</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">config_path</span> <span class="o">=</span> <span class="s2">&#34;../database&#34;</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span><span class="c1">
+</span></span></span><span class="line"><span class="cl"><span class="c1">
+</span></span></span><span class="line"><span class="cl"><span class="c1"># Use the outputs from the dependency
+</span></span></span><span class="line"><span class="cl"><span class="c1"></span><span class="nx">inputs</span> <span class="o">=</span> <span class="p">{</span>
+</span></span><span class="line"><span class="cl">  <span class="nx">db_connection_string</span> <span class="o">=</span> <span class="nx">dependency</span><span class="p">.</span><span class="nx">database</span><span class="p">.</span><span class="nx">outputs</span><span class="p">.</span><span class="nx">connection_string</span>
+</span></span><span class="line"><span class="cl"><span class="p">}</span>
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="local-workflow-2"><a href="#local-workflow-2" class="header-anchor"></a>Local Workflow
+</h3><p>To deploy the entire <code>dev</code> stack in the correct order, you run a command from the environment&rsquo;s directory:</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt">1
+</span><span class="lnt">2
+</span><span class="lnt">3
+</span><span class="lnt">4
+</span><span class="lnt">5
+</span><span class="lnt">6
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-bash" data-lang="bash"><span class="line"><span class="cl"><span class="c1"># Navigate to the environment folder</span>
+</span></span><span class="line"><span class="cl"><span class="nb">cd</span> application/dev
+</span></span><span class="line"><span class="cl">
+</span></span><span class="line"><span class="cl"><span class="c1"># This command plans/applies all modules in the order defined in terragrunt.stack.hcl</span>
+</span></span><span class="line"><span class="cl">terragrunt run-all plan
+</span></span><span class="line"><span class="cl">terragrunt run-all apply
+</span></span></code></pre></td></tr></table>
+</div>
+</div><h3 id="cicd-pipeline-github-actions-2"><a href="#cicd-pipeline-github-actions-2" class="header-anchor"></a>CI/CD Pipeline (GitHub Actions)
+</h3><p>This workflow uses a change detection action to find modified Terragrunt folders. When a component like <code>app</code> is changed, it will run <code>terragrunt plan</code> in that directory. Terragrunt is smart enough to automatically include any dependencies (like <code>database</code>) in its plan to ensure everything is consistent.</p>
+<div class="highlight"><div class="chroma">
+<table class="lntable"><tr><td class="lntd">
+<pre tabindex="0" class="chroma"><code><span class="lnt"> 1
+</span><span class="lnt"> 2
+</span><span class="lnt"> 3
+</span><span class="lnt"> 4
+</span><span class="lnt"> 5
+</span><span class="lnt"> 6
+</span><span class="lnt"> 7
+</span><span class="lnt"> 8
+</span><span class="lnt"> 9
+</span><span class="lnt">10
+</span><span class="lnt">11
+</span><span class="lnt">12
+</span><span class="lnt">13
+</span><span class="lnt">14
+</span><span class="lnt">15
+</span><span class="lnt">16
+</span><span class="lnt">17
+</span><span class="lnt">18
+</span><span class="lnt">19
+</span><span class="lnt">20
+</span><span class="lnt">21
+</span><span class="lnt">22
+</span><span class="lnt">23
+</span><span class="lnt">24
+</span><span class="lnt">25
+</span><span class="lnt">26
+</span><span class="lnt">27
+</span><span class="lnt">28
+</span><span class="lnt">29
+</span><span class="lnt">30
+</span><span class="lnt">31
+</span><span class="lnt">32
+</span><span class="lnt">33
+</span><span class="lnt">34
+</span><span class="lnt">35
+</span><span class="lnt">36
+</span><span class="lnt">37
+</span><span class="lnt">38
+</span><span class="lnt">39
+</span><span class="lnt">40
+</span><span class="lnt">41
+</span><span class="lnt">42
+</span><span class="lnt">43
+</span><span class="lnt">44
+</span><span class="lnt">45
+</span><span class="lnt">46
+</span><span class="lnt">47
+</span><span class="lnt">48
+</span><span class="lnt">49
+</span><span class="lnt">50
+</span><span class="lnt">51
+</span><span class="lnt">52
+</span><span class="lnt">53
+</span><span class="lnt">54
+</span><span class="lnt">55
+</span><span class="lnt">56
+</span><span class="lnt">57
+</span><span class="lnt">58
+</span><span class="lnt">59
+</span><span class="lnt">60
+</span><span class="lnt">61
+</span><span class="lnt">62
+</span><span class="lnt">63
+</span><span class="lnt">64
+</span><span class="lnt">65
+</span><span class="lnt">66
+</span><span class="lnt">67
+</span><span class="lnt">68
+</span><span class="lnt">69
+</span><span class="lnt">70
+</span></code></pre></td>
+<td class="lntd">
+<pre tabindex="0" class="chroma"><code class="language-yaml" data-lang="yaml"><span class="line"><span class="cl"><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Dynamic Terragrunt CI/CD&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">on</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">pull_request</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="l">main]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">paths</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;dev/**&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;prod/**&#39;</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">push</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">branches</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="l">main]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">paths</span><span class="p">:</span><span class="w"> </span><span class="p">[</span><span class="s1">&#39;dev/**&#39;</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;prod/**&#39;</span><span class="p">]</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w"></span><span class="nt">jobs</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">plan</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Terragrunt Plan&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l">ubuntu-latest</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l">github.event_name == &#39;pull_request&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">steps</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Checkout Code&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">actions/checkout@v4</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Setup OpenTofu&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">opentofu/setup-opentofu@v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Setup Terragrunt&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">gruntwork-io/setup-terragrunt@v2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Find changed Terragrunt directories&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">changed-dirs</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">tj-actions/changed-files@v44</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">with</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="c"># Get a space-separated string of all changed directories</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">dir_names</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Run Terragrunt Plan on Changed Dirs&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c"># This step runs &#39;terragrunt plan&#39; in each directory that was changed.</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="c"># It will post a comment to the PR for each plan.</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l">steps.changed-dirs.outputs.all_changed_files != &#39;&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">          for dir in ${{ steps.changed-dirs.outputs.all_changed_files }}; do
+</span></span></span><span class="line"><span class="cl"><span class="sd">            terragrunt plan -out=${dir//\//-}.plan --terragrunt-working-dir ${dir}
+</span></span></span><span class="line"><span class="cl"><span class="sd">          done</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">  </span><span class="nt">apply</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Terragrunt Apply&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">runs-on</span><span class="p">:</span><span class="w"> </span><span class="l">ubuntu-latest</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l">github.event_name == &#39;push&#39; &amp;&amp; github.ref == &#39;refs/heads/main&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">needs</span><span class="p">:</span><span class="w"> </span><span class="l">plan</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">    </span><span class="nt">steps</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Checkout Code&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">actions/checkout@v4</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Setup OpenTofu&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">opentofu/setup-opentofu@v1</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Setup Terragrunt&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">gruntwork-io/setup-terragrunt@v2</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Find changed Terragrunt directories&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">id</span><span class="p">:</span><span class="w"> </span><span class="l">changed-dirs</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">uses</span><span class="p">:</span><span class="w"> </span><span class="l">tj-actions/changed-files@v44</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">with</span><span class="p">:</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">          </span><span class="nt">dir_names</span><span class="p">:</span><span class="w"> </span><span class="kc">true</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">      </span>- <span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="s1">&#39;Run Terragrunt Apply on Changed Dirs&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">if</span><span class="p">:</span><span class="w"> </span><span class="l">steps.changed-dirs.outputs.all_changed_files != &#39;&#39;</span><span class="w">
+</span></span></span><span class="line"><span class="cl"><span class="w">        </span><span class="nt">run</span><span class="p">:</span><span class="w"> </span><span class="p">|</span><span class="sd">
+</span></span></span><span class="line"><span class="cl"><span class="sd">          for dir in ${{ steps.changed-dirs.outputs.all_changed_files }}; do
+</span></span></span><span class="line"><span class="cl"><span class="sd">            terragrunt apply --terragrunt-working-dir ${dir} --terragrunt-non-interactive
+</span></span></span><span class="line"><span class="cl"><span class="sd">          done</span><span class="w">
+</span></span></span></code></pre></td></tr></table>
+</div>
+</div><h2 id="conclusion"><a href="#conclusion" class="header-anchor"></a>Conclusion
+</h2><p>There is no single <strong>best</strong> solution, only the right one for your project&rsquo;s current scale and complexity.</p>
+<ul>
+<li><strong>Starting a new, self-contained application?</strong>
+<ul>
+<li><strong>Start with OpenTofu Workspaces</strong>. It&rsquo;s the cleanest, most modern approach that keeps your code DRY from day one.</li>
+</ul>
+</li>
+<li><strong>Is your application a &ldquo;stack&rdquo; of multiple, interdependent services?</strong>
+<ul>
+<li><strong>Level up to Terragrunt with</strong> <code>terragrunt.stack.hcl</code>. It gives you the powerful dependency management and orchestration that workspaces lack.</li>
+</ul>
+</li>
+<li><strong>Prefer maximum simplicity and explicit configuration over DRY principles?</strong>
+<ul>
+<li><strong>The classic Isolated Folders pattern</strong> is always a reliable and safe choice.</li>
+</ul>
+</li>
+</ul>
+
+</section>
+
+
+    <footer class="article-footer">
+    
+
+    </footer>
+
+
+    
+</article>
+
+    
+
+    
+
+<aside class="related-content--wrapper">
+    <h2 class="section-title">Related content</h2>
+    <div class="related-content">
+        <div class="flex article-list--tile">
+            
+                
+<article class="">
+    <a href="/post/develop-terraform-modules/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Develop Terraform Modules With Documentation and Versioning</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/azure-terraform-github-actions-oidc/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Eliminate Secrets From Your Terraform Azure Backend</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/terraform-drift-reconcile-pipeline/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Solve Terraform Drift With a Reconciliation Pipeline</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/hugo-site-azure/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Build a Hugo Website on Azure</h2>
+        </div>
+    </a>
+</article>
+
+            
+                
+<article class="">
+    <a href="/post/genai-certification-study/">
+        
+        
+
+        <div class="article-details">
+            <h2 class="article-title">Study With Google Gemini</h2>
+        </div>
+    </a>
+</article>
+
+            
+        </div>
+    </div>
+</aside>
+
+     
+    
+        
+    
+
+    <footer class="site-footer">
+    <section class="copyright">
+        &copy; 
+        
+        2025 Vetle&#39;s Tech Chronicles
+    </section>
+    
+    <section class="powerby">
+        
+            All opinions are my own. <br/>
+        Built with <a href="https://gohugo.io/" target="_blank" rel="noopener">Hugo</a> <br />
+        Theme <b><a href="https://github.com/CaiJimmy/hugo-theme-stack" target="_blank" rel="noopener" data-version="3.31.0">Stack</a></b> designed by <a href="https://jimmycai.com" target="_blank" rel="noopener">Jimmy</a>
+    </section>
+</footer>
+
+
+    
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+    
+    <div class="pswp__bg"></div>
+
+    
+    <div class="pswp__scroll-wrap">
+
+        
+        <div class="pswp__container">
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+            <div class="pswp__item"></div>
+        </div>
+
+        
+        <div class="pswp__ui pswp__ui--hidden">
+
+            <div class="pswp__top-bar">
+
+                
+
+                <div class="pswp__counter"></div>
+
+                <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+
+                <button class="pswp__button pswp__button--share" title="Share"></button>
+
+                <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+
+                <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+
+                
+                
+                <div class="pswp__preloader">
+                    <div class="pswp__preloader__icn">
+                        <div class="pswp__preloader__cut">
+                            <div class="pswp__preloader__donut"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+                <div class="pswp__share-tooltip"></div>
+            </div>
+
+            <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+            </button>
+
+            <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+            </button>
+
+            <div class="pswp__caption">
+                <div class="pswp__caption__center"></div>
+            </div>
+
+        </div>
+
+    </div>
+
+</div><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.js"integrity="sha256-ePwmChbbvXbsO02lbM3HoHbSHTHFAeChekF1xKJdleo="crossorigin="anonymous"
+                defer
+                >
+            </script><script 
+                src="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe-ui-default.min.js"integrity="sha256-UKkzOn/w1mBxRmLLGrSeyB4e1xbrp4xylgAWb3M42pU="crossorigin="anonymous"
+                defer
+                >
+            </script><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/default-skin/default-skin.min.css"crossorigin="anonymous"
+            ><link 
+                rel="stylesheet" 
+                href="https://cdn.jsdelivr.net/npm/photoswipe@4.1.3/dist/photoswipe.min.css"crossorigin="anonymous"
+            >
+
+            </main>
+        </div>
+        <script 
+                src="https://cdn.jsdelivr.net/npm/node-vibrant@3.1.6/dist/vibrant.min.js"integrity="sha256-awcR2jno4kI5X0zL8ex0vi2z&#43;KMkF24hUW8WePSA9HM="crossorigin="anonymous"
+                
+                >
+            </script><script type="text/javascript" src="/ts/main.e37a1c77e9f793cd8619172a944d78c1066956c7d5cd59e9bd51bd3e348898ea.js" defer></script>
+<script>
+    (function () {
+        const customFont = document.createElement('link');
+        customFont.href = "https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap";
+
+        customFont.type = "text/css";
+        customFont.rel = "stylesheet";
+
+        document.head.appendChild(customFont);
+    }());
+</script>
+
+    </body>
+</html>

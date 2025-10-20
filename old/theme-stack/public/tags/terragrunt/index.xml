@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+    <channel>
+        <title>Terragrunt on Vetle&#39;s Tech Chronicles</title>
+        <link>http://localhost:1313/tags/terragrunt/</link>
+        <description>Recent content in Terragrunt on Vetle&#39;s Tech Chronicles</description>
+        <generator>Hugo -- gohugo.io</generator>
+        <language>en-us</language>
+        <lastBuildDate>Fri, 10 Oct 2025 00:00:00 +0000</lastBuildDate><atom:link href="http://localhost:1313/tags/terragrunt/index.xml" rel="self" type="application/rss+xml" /><item>
+        <title>Manage Multiple Terraform Environments</title>
+        <link>http://localhost:1313/post/multi-environment-terraform/</link>
+        <pubDate>Fri, 10 Oct 2025 00:00:00 +0000</pubDate>
+        
+        <guid>http://localhost:1313/post/multi-environment-terraform/</guid>
+        <description>&lt;h2 id=&#34;introduction&#34;&gt;&lt;a href=&#34;#introduction&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Introduction
+&lt;/h2&gt;&lt;p&gt;Every project starts simple, but when managing infrastructure for &lt;code&gt;dev&lt;/code&gt;, &lt;code&gt;test&lt;/code&gt;, and &lt;code&gt;prod&lt;/code&gt;, let alone multiple customers, it quickly becomes complex. How can we solve this chaos?&lt;/p&gt;
+&lt;p&gt;We&amp;rsquo;ll tackle the common issues of scalable IaC, and go through a clear journey from basic patterns to something more advanced, showing you how to choose the right tool for the job.&lt;/p&gt;
+&lt;h2 id=&#34;isolated-folders&#34;&gt;&lt;a href=&#34;#isolated-folders&#34; class=&#34;header-anchor&#34;&gt;&lt;/a&gt;Isolated Folders
+&lt;/h2&gt;&lt;p&gt;This is the classic starting point when trying to figure out multi-environment setups. Its the simplest way to manage multiple environments by giving each one its own dedicated directory.&lt;/p&gt;</description>
+        </item>
+        
+    </channel>
+</rss>
