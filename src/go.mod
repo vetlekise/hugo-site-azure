@@ -1,6 +1,6 @@
 module github.com/geekifan/hugo-theme-chirpy-starter
 
-go 1.24.2
+go 1.19
 
 require (
 	github.com/geekifan/chirpy-static-assets v0.0.0-20250507021825-887e490b15f2 // indirect
