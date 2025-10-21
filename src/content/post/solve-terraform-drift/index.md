@@ -12,18 +12,18 @@ tags:
 ---
 
 ## What is Terraform Drift?
-{{< quote author="Christie Koehler" source="HashiCorp Blog" url="https://www.hashicorp.com/en/blog/detecting-and-managing-drift-with-terraform">}}
-Drift is the term for when the real-world state of your infrastructure differs from the state defined in your configuration.
-{{< /quote >}}
+> Drift is the term for when the real-world state of your infrastructure differs from the state defined in your configuration.
+>
+> *Christie Koehler - HashiCorp Blog - https://www.hashicorp.com/en/blog/detecting-and-managing-drift-with-terraform*
 
 It can be caused by many things, but urgent hotfixes and teams being unfamiliar with Infrastructure as Code (IaC) practices is the most likely cause. Its a significant problem because it undermines the core benefits of IaC. 
 
 The main issue is the loss of a single source of truth. When your code and infra tell different stories, you can no longer trust your code to be an accurate representation of your environment.
 
 ## Applying GitOps Principals to Infrastructure
-{{< quote source="GitLab Topics" url="https://about.gitlab.com/topics/gitops">}}
-GitOps is an operational framework that takes DevOps best practices used for application development such as version control, collaboration, compliance, and CI/CD, and applies them to infrastructure automation.
-{{< /quote >}}
+> GitOps is an operational framework that takes DevOps best practices used for application development such as version control, collaboration, compliance, and CI/CD, and applies them to infrastructure automation.
+>
+> *GitLab Topics - https://about.gitlab.com/topics/gitops*
 
 The core idea is simple:
 1. **Describe** your entire desired infrastructure in a Git repository using declarative code.

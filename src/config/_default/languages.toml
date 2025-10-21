@@ -1,0 +1,7 @@
+[en]
+  languageName = "English"
+  languageCode = "en"
+  weight = 2
+  title = "Vetle's Tech Chronicles"
+  [en.params]
+    tagline = "A blog about technology, tutorials, and my thoughts."
