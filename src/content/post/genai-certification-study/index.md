@@ -81,6 +81,7 @@ When you're finished you'll see a summary page like this. You can tell it to ana
 ![](exam-end.png)
 
 You can even share it! Just press the share button and send the link. 
+
 ![](exam-share.png)
 
 ## Schedule and Pass the Exam
