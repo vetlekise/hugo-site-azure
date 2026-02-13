@@ -2,6 +2,6 @@
   languageName = "English"
   languageCode = "en"
   weight = 2
-  title = "Vetle's Tech Chronicles"
+  title = "vetlekise"
   [en.params]
-    tagline = "A blog about technology, tutorials, and my thoughts."
+    tagline = "scribbles and such"
